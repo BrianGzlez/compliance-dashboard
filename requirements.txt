@@ -4,6 +4,7 @@ pandas
 numpy
 plotly
 graphviz
+matplotlib  # <-- Agregando matplotlib
 
 # Integración con Google Sheets
 gspread
