@@ -1,1 +1,24 @@
+# Librerías básicas
+streamlit
+pandas
+numpy
+matplotlib
+plotly
+graphviz
 
+# Integración con Google Sheets
+gspread
+google-auth
+google-auth-oauthlib
+google-auth-httplib2
+google-auth-json
+google-auth-credentials
+google-auth-library
+google-auth-transport
+google-auth-oauthlib
+
+# Geolocalización y visualización en mapas
+geopy
+
+# Manejo de credenciales
+oauth2client
