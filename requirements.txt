@@ -5,6 +5,7 @@ numpy
 matplotlib
 plotly
 graphviz
+matplotlib.pyplot
 
 # Integración con Google Sheets
 gspread
