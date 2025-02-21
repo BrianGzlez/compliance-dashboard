@@ -4,16 +4,22 @@ pandas
 numpy
 plotly
 graphviz
-matplotlib  # <-- Agregando matplotlib
+matplotlib  # Para visualizaciones
 
 # Integración con Google Sheets
 gspread
 google-auth
 google-auth-oauthlib
 google-auth-httplib2
+google-auth-service-account  # Asegura que este está incluido
+oauth2client  # Para autenticación
 
-# Geolocalización y visualización en mapas
+# Geolocalización
 geopy
+
 
 # Manejo de credenciales
 oauth2client
+
+
+
