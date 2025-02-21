@@ -1,7 +1,6 @@
 import streamlit as st
 import time
 import numpy as np
-import matplotlib.pyplot as plt
 
 # Configuración de la página con tema oscuro
 st.set_page_config(page_title="Arkham Exchange - Compliance", layout="wide")
@@ -56,55 +55,3 @@ st.markdown("<br><br>", unsafe_allow_html=True)
 
 # Animación del texto "TRADE WITH INTELLIGENCE."
 typewriter_effect("TRADE WITH INTELLIGENCE.", delay=0.08, size="h4", color="#cccccc", italic=True)
-
-# Espaciado antes de la gráfica
-st.markdown("<br><br>", unsafe_allow_html=True)
-
-# Contenedor para la gráfica animada
-chart_placeholder = st.empty()
-
-# Función para generar la gráfica sin bordes visibles y en pantalla completa
-def generate_trading_chart():
-    fig, ax = plt.subplots(figsize=(12, 2))  # Aumentamos el tamaño del gráfico para que sea full-width
-
-    # Ajustar la figura para que ocupe toda la pantalla sin márgenes
-    plt.subplots_adjust(left=0, right=1, top=1, bottom=0)
-
-    # Fondo completamente negro
-    ax.set_facecolor("#000000")  # Fondo interno del gráfico
-    fig.patch.set_facecolor("#000000")  # Fondo exterior del gráfico
-
-    # Eliminar todos los bordes
-    for spine in ax.spines.values():
-        spine.set_color("#000000")  # Oculta completamente los bordes
-
-    # Ocultar ejes y etiquetas
-    ax.set_xticks([])
-    ax.set_yticks([])
-    ax.xaxis.set_visible(False)
-    ax.yaxis.set_visible(False)
-
-    # Generar datos iniciales
-    x_data = np.linspace(0, 100, 100)  # Asegura que cubra toda la pantalla
-    y_data = np.cumsum(np.random.randn(100) * 0.5) + 10  # Simulación de tendencia
-
-    # Animación de la gráfica
-    for i in range(10, len(x_data)):
-        ax.clear()
-        ax.set_facecolor("#000000")  # Mantener fondo negro
-        ax.plot(x_data[:i], y_data[:i], color="#00FF99", linewidth=1.5)  # Línea de trading en color verde neón
-
-        # Volver a ocultar ejes y bordes después de limpiar
-        for spine in ax.spines.values():
-            spine.set_color("#000000")
-        ax.set_xticks([])
-        ax.set_yticks([])
-        ax.xaxis.set_visible(False)
-        ax.yaxis.set_visible(False)
-
-        # Dibujar la gráfica en el placeholder
-        chart_placeholder.pyplot(fig)
-        time.sleep(0.1)  # Retardo de animación
-
-# Ejecutar la animación de la gráfica
-generate_trading_chart()
