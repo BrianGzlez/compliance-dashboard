@@ -2,10 +2,8 @@
 streamlit
 pandas
 numpy
-matplotlib
 plotly
 graphviz
-matplotlib.pyplot
 
 # Integración con Google Sheets
 gspread
@@ -22,4 +20,4 @@ google-auth-oauthlib
 geopy
 
 # Manejo de credenciales
-oauth2client 
+oauth2client
