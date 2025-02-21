@@ -11,7 +11,7 @@ gspread
 google-auth
 google-auth-oauthlib
 google-auth-httplib2
-google-auth-service-account  # Asegura que este está incluido
+
 oauth2client  # Para autenticación
 
 # Geolocalización
