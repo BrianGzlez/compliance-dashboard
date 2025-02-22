@@ -2,21 +2,25 @@ import streamlit as st
 import pandas as pd
 import gspread
 import graphviz
+import json
+import os
 from google.oauth2.service_account import Credentials
 
-# 🔥 Código corregido para evitar errores con JSON
+# 📌 Obtener las credenciales desde Repository Secrets en GitHub Actions
 try:
-    creds = Credentials.from_service_account_info(st.secrets["GOOGLE_CREDENTIALS"])
+    credentials_json = os.getenv("GOOGLE_CREDENTIALS")  # Tomar desde variables de entorno
+    if not credentials_json:
+        raise ValueError("🚨 ERROR: GOOGLE_CREDENTIALS no está definido en las variables de entorno.")
+
+    creds_dict = json.loads(credentials_json.replace("\\n", "\n"))  # Asegurar formato correcto
+    creds = Credentials.from_service_account_info(creds_dict)
     client = gspread.authorize(creds)
-except KeyError:
-    st.error("🚨 Error: La clave 'GOOGLE_CREDENTIALS' no está definida en los secretos de Streamlit.")
-    st.stop()
+
 except Exception as e:
     st.error(f"🚨 Error al cargar las credenciales: {e}")
     st.stop()
 
-
-# ID de la Hoja de Google Sheets
+# 📝 ID de la Hoja de Google Sheets
 SHEET_ID = "1kNILyJzBS5794YmBfPRLdAISb4vMbUZ9G2BjGKDgDDw"
 SHEET_NAME = "Compliance Org Structure & Open"
 
