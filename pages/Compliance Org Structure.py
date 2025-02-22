@@ -3,28 +3,30 @@ import pandas as pd
 import gspread
 import graphviz
 import json
-import os
 from google.oauth2.service_account import Credentials
 
-# 📌 Obtener las credenciales desde Repository Secrets en GitHub Actions
+# 📌 Definir los permisos (scopes) correctos para Google Sheets y Drive
+SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly", "https://www.googleapis.com/auth/drive.readonly"]
+SHEET_ID = "1kNILyJzBS5794YmBfPRLdAISb4vMbUZ9G2BjGKDgDDw"
+SHEET_NAME = "Compliance Org Structure & Open"
+
+# 📌 Obtener credenciales desde Streamlit Secrets o desde un archivo local
+def get_credentials():
+    if "google_credentials" in st.secrets:
+        return Credentials.from_service_account_info(st.secrets["google_credentials"], scopes=SCOPES)
+    else:
+        return Credentials.from_service_account_file("credentials.json", scopes=SCOPES)
+
+# 📌 Autenticación con Google Sheets
 try:
-    credentials_json = os.getenv("GOOGLE_CREDENTIALS")  # Tomar desde variables de entorno
-    if not credentials_json:
-        raise ValueError("🚨 ERROR: GOOGLE_CREDENTIALS no está definido en las variables de entorno.")
-
-    creds_dict = json.loads(credentials_json.replace("\\n", "\n"))  # Asegurar formato correcto
-    creds = Credentials.from_service_account_info(creds_dict)
+    creds = get_credentials()
     client = gspread.authorize(creds)
-
 except Exception as e:
     st.error(f"🚨 Error al cargar las credenciales: {e}")
     st.stop()
 
-# 📝 ID de la Hoja de Google Sheets
-SHEET_ID = "1kNILyJzBS5794YmBfPRLdAISb4vMbUZ9G2BjGKDgDDw"
-SHEET_NAME = "Compliance Org Structure & Open"
-
 # 📂 Función para cargar datos desde Google Sheets
+@st.cache_data(ttl=600)
 def load_data(sheet_name):
     try:
         sheet = client.open_by_key(SHEET_ID).worksheet(sheet_name)
