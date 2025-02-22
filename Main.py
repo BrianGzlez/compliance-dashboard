@@ -3,50 +3,6 @@ import time
 import numpy as np
 import matplotlib.pyplot as plt
 
-
-# 📌 Forzar colores del dashboard con CSS
-st.markdown(
-    """
-    <style>
-        /* Color de fondo de la app */
-        .stApp {
-            background-color: #000000 !important;
-        }
-
-        /* Color de fondo de la barra lateral */
-        section[data-testid="stSidebar"] {
-            background-color: #1A1A1A !important;
-        }
-
-        /* Color de los inputs, selects y botones */
-        div.st-bd {
-            background-color: #31333F !important;
-            color: #FFFFFF !important;
-            border-radius: 10px !important;
-        }
-
-        /* Color del texto en toda la app */
-        body, .stTextInput, .stSelectbox, .stButton, .stNumberInput, .stDataFrame {
-            color: #FFFFFF !important;
-            font-family: sans-serif !important;
-        }
-
-        /* Cambiar colores de los títulos */
-        h1, h2, h3, h4, h5, h6 {
-            color: #FFFFFF !important;
-        }
-
-        /* Cambiar color de métricas */
-        div[data-testid="stMetricValue"] {
-            color: #FFFFFF !important;
-        }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-
-st.title("Compliance Dashboard")  # Prueba si los colores se aplican
-
 # Configuración de la página con tema oscuro
 st.set_page_config(page_title="Arkham Exchange - Compliance", layout="wide")
 
