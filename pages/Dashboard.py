@@ -157,3 +157,52 @@ st.plotly_chart(fig_map, use_container_width=True)
 # -------------------------
 st.markdown("### Employee Details (Filtered)")
 st.dataframe(filtered_df, use_container_width=True)
+
+
+# -------------------------
+# Gráfico: Total Equity Granted por Departamento
+# -------------------------
+df_equity_department = filtered_df[['Department', 'Equity']].dropna()
+df_equity_department = df_equity_department.groupby('Department', as_index=False)['Equity'].sum()
+
+fig_equity_department = px.bar(
+    df_equity_department,
+    x='Department',
+    y='Equity',
+    title="Total Equity Granted per Department",
+    color='Department',
+    text='Equity',
+    template="plotly_white"
+)
+fig_equity_department.update_traces(texttemplate='%{text:.2f}', textposition='outside')
+fig_equity_department.update_layout(xaxis_title="Department", yaxis_title="Total Equity", xaxis={'categoryorder':'total descending'})
+
+st.markdown("### Total Equity Granted per Department")
+st.plotly_chart(fig_equity_department, use_container_width=True)
+
+# Total Tokens por Departamento
+df_tokens_department = filtered_df.groupby('Department', as_index=False)['Token'].sum()
+fig_tokens_department = px.bar(df_tokens_department, x='Department', y='Token', title="🏢 Total Tokens Granted per Department", color='Department', text='Token', template="plotly_white")
+fig_tokens_department.update_traces(texttemplate='%{text:.2f}', textposition='outside')
+
+st.plotly_chart(fig_tokens_department, use_container_width=True)
+
+# -------------------------
+# Listas de empleados
+# -------------------------
+st.markdown("### Employee Lists")
+
+# Lista de empleados activos (filtrando correctamente con paréntesis en la condición)
+st.write("**List of current active employees:**", 
+         df_active[(df_active['Status'].str.lower() == 'active') & 
+                   (df_active['Contract'].str.contains('Arkham Employee', na=False))])
+
+# Lista de empleados que fueron despedidos
+st.write("**List of employees who were let go:**", 
+         df_org[df_org['Status'].str.lower() == 'inactive'])
+
+# Lista de consultores con números de presupuesto asociados
+st.write("**List of consultants with associated budget numbers:**", 
+         df_active[(df_active['Status'].str.lower() == 'active') & 
+                   (df_active['Contract'].str.contains('Consultants', na=False))])
+
