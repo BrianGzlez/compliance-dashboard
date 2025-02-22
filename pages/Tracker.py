@@ -3,21 +3,27 @@ import pandas as pd
 import gspread
 import plotly.express as px
 import json
-import os
 from google.oauth2.service_account import Credentials
 
-# Google Sheets Configuration
+# 📌 Google Sheets Configuration
 SHEET_ID = "1kNILyJzBS5794YmBfPRLdAISb4vMbUZ9G2BjGKDgDDw"
 
-# 📌 Cargar credenciales desde Streamlit Secrets o un archivo local
-if "google_credentials" in st.secrets:
-    creds_info = st.secrets["google_credentials"]
+# 📌 Definir los permisos (scopes) correctos para Google Sheets y Drive
+SCOPES = [
+    "https://www.googleapis.com/auth/spreadsheets.readonly",
+    "https://www.googleapis.com/auth/drive.readonly"
+]
 
-    creds = Credentials.from_service_account_info(creds_info)
-else:
-    creds = Credentials.from_service_account_file("credentials.json")
+# 📌 Función para cargar credenciales desde Streamlit Secrets o archivo local
+def get_credentials():
+    if "google_credentials" in st.secrets:
+        creds_info = st.secrets["google_credentials"]
+        return Credentials.from_service_account_info(creds_info, scopes=SCOPES)
+    else:
+        return Credentials.from_service_account_file("credentials.json", scopes=SCOPES)
 
-# Autenticar con Google Sheets
+# 📌 Autenticación con Google Sheets
+creds = get_credentials()
 client = gspread.authorize(creds)
 worksheet = client.open_by_key(SHEET_ID).worksheet("Compliance Org Structure & Open")
 
@@ -26,10 +32,10 @@ worksheet = client.open_by_key(SHEET_ID).worksheet("Compliance Org Structure & O
 def load_data():
     df = pd.DataFrame(worksheet.get_all_records())
 
-    # Standardize column names
+    # Estandarizar nombres de columnas
     df.columns = df.columns.str.strip().str.lower()
 
-    # Ensure "status" and "offer status" exist
+    # Verificar columnas necesarias
     if "status" not in df.columns:
         df["status"] = "offer stage"
     if "offer status" not in df.columns:
@@ -55,11 +61,6 @@ hiring_process_df = df_org[df_org[status_column] == "offer stage"].copy()
 open_positions_df = df_org[df_org[status_column].isin(["open position", "multiple position"])].copy()
 open_positions_df = open_positions_df.dropna(axis=1, how="all")  # Remove empty columns
 active_employees_df = df_org[df_org[status_column] == "active"].copy()
-
-# Reordenar columnas en Hiring Process
-column_order = ["offer status", "compliance employee", "title", "department", "position", "direct report",
-                "manager", "salary", "equity", "token", "email", "country", "state", "start date", "contract"]
-hiring_process_df = hiring_process_df[[col for col in column_order if col in hiring_process_df.columns]]
 
 # 📌 Mostrar datos en Streamlit
 st.title("📊 Arkham Hiring Tracker")
