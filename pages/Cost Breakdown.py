@@ -5,29 +5,42 @@ from oauth2client.service_account import ServiceAccountCredentials
 import plotly.express as px
 import numpy as np
 
-# -------------------------
-# Cargar Datos desde Google Sheets
-# -------------------------
+from google.oauth2.service_account import Credentials
+
+# 📌 Configurar credenciales de Google Sheets
+SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly", "https://www.googleapis.com/auth/drive.readonly"]
+SHEET_ID = "1kNILyJzBS5794YmBfPRLdAISb4vMbUZ9G2BjGKDgDDw"
+
+# 📌 Obtener credenciales desde Streamlit Secrets o archivo local
+def get_credentials():
+    if "google_credentials" in st.secrets:
+        return Credentials.from_service_account_info(st.secrets["google_credentials"], scopes=SCOPES)
+    else:
+        return Credentials.from_service_account_file("credentials.json", scopes=SCOPES)
+
+# 📌 Autenticación con Google Sheets
 @st.cache_data(ttl=600)
 def load_data():
-    scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-    creds = ServiceAccountCredentials.from_json_keyfile_name("secrets/credentials.json", scope)
-    client = gspread.authorize(creds)
-    SHEET_ID = "1kNILyJzBS5794YmBfPRLdAISb4vMbUZ9G2BjGKDgDDw"
+    try:
+        creds = get_credentials()
+        client = gspread.authorize(creds)
 
-    # Cargar Compliance Org Structure & Open
-    worksheet_compliance = client.open_by_key(SHEET_ID).worksheet("Compliance Org Structure & Open")
-    df_compliance = pd.DataFrame(worksheet_compliance.get_all_records())
-    df_compliance.columns = df_compliance.columns.str.strip()
+        # Cargar Compliance Org Structure & Open
+        worksheet_compliance = client.open_by_key(SHEET_ID).worksheet("Compliance Org Structure & Open")
+        df_compliance = pd.DataFrame(worksheet_compliance.get_all_records())
+        df_compliance.columns = df_compliance.columns.str.strip()
 
-    # Cargar Vendor Management
-    worksheet_vendor = client.open_by_key(SHEET_ID).worksheet("Vendor Management")
-    df_vendors = pd.DataFrame(worksheet_vendor.get_all_records())
-    df_vendors.columns = df_vendors.columns.str.strip()
+        # Cargar Vendor Management
+        worksheet_vendor = client.open_by_key(SHEET_ID).worksheet("Vendor Management")
+        df_vendors = pd.DataFrame(worksheet_vendor.get_all_records())
+        df_vendors.columns = df_vendors.columns.str.strip()
 
-    return df_compliance, df_vendors
+        return df_compliance, df_vendors
+    except Exception as e:
+        st.error(f"⚠️ Error al cargar datos desde Google Sheets: {e}")
+        return pd.DataFrame(), pd.DataFrame()
 
-# Cargar los datos
+# 📌 Cargar los datos
 df_org, df_vendors = load_data()
 
 # Filtrar empleados activos
