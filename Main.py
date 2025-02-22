@@ -2,9 +2,10 @@ import streamlit as st
 import time
 import numpy as np
 import matplotlib.pyplot as plt
-
+import os 
 # Configuración de la página con tema oscuro
 st.set_page_config(page_title="Arkham Exchange - Compliance", layout="wide")
+os.environ["STREAMLIT_CONFIG"] = "./.streamlit/config.toml"
 
 # Estilos personalizados de Streamlit
 st.markdown(
