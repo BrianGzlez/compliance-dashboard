@@ -2,20 +2,22 @@ import streamlit as st
 import pandas as pd
 import gspread
 import graphviz
-from oauth2client.service_account import ServiceAccountCredentials
+import json
+from google.oauth2.service_account import Credentials
 
-# Page Configuration
+# Configurar página
 st.set_page_config(page_title="Organizational Chart", layout="wide")
 
-# Google Sheets Credentials
-scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
+# 🔐 Cargar credenciales desde Streamlit Secrets
+creds_dict = json.loads(st.secrets["GOOGLE_CREDENTIALS"])
+creds = Credentials.from_service_account_info(creds_dict)
 client = gspread.authorize(creds)
 
-# Load Data
+# ID de la Hoja de Google Sheets
 SHEET_ID = "1kNILyJzBS5794YmBfPRLdAISb4vMbUZ9G2BjGKDgDDw"
 SHEET_NAME = "Compliance Org Structure & Open"
 
+# 📂 Función para cargar datos desde Google Sheets
 def load_data(sheet_name):
     try:
         sheet = client.open_by_key(SHEET_ID).worksheet(sheet_name)
@@ -29,11 +31,11 @@ def load_data(sheet_name):
 
 df = load_data(SHEET_NAME)
 
-# Validate Data
+# 🚨 Validar si los datos están vacíos
 if df.empty:
     st.stop()
 
-# Data Cleaning
+# 📊 Limpieza de Datos
 df = df[["Compliance Employee", "Title", "Direct Report", "Department", "Status"]].fillna("")
 df.rename(columns={"Compliance Employee": "Employee",
                    "Title": "Title",
@@ -46,33 +48,33 @@ df["DirectReport"] = df["DirectReport"].str.strip().replace("", "Open Position")
 df["Title"] = df["Title"].str.strip().replace("", "Unknown Position")
 df["Status"] = df["Status"].str.strip().replace("", "Active")
 
-# Ensure Adam Westwood-Booth always has the correct title
+# Asegurar que Adam Westwood-Booth siempre tenga el título correcto
 df.loc[df["Employee"] == "Adam Westwood-Booth", "Title"] = "Head of Compliance"
 
-# Remove Inactive Employees
+# 🛑 Eliminar empleados inactivos
 df = df[df["Status"].str.lower() != "inactive"]
 
-# Sidebar - Department Selection
+# 📌 Sidebar para seleccionar departamento
 departments = sorted(df["Department"].dropna().unique().tolist())  
 selected_department = st.sidebar.selectbox("Select Department:", departments)
 
-# Filter Data
+# 🔎 Filtrar datos por departamento
 filtered_df = df[df["Department"] == selected_department]
 
-# Graphviz Chart
+# 🎨 Generar gráfico con Graphviz
 dot = graphviz.Digraph(format="png")
 
-# Layout Configuration for Centering and Dark Mode
+# 🔲 Configuración del diseño
 dot.attr(size="20,12", rankdir="TB", nodesep="0.5", ranksep="1.0", splines="true", concentrate="true", bgcolor="black")
 
-# Colors for Dark Mode
+# 🎨 Colores para modo oscuro
 active_color = "#004488"  # Azul oscuro para empleados activos
 open_color = "#666666"  # Gris oscuro para posiciones abiertas
 text_color_active = "white"  # Texto blanco en nodos activos
 text_color_open = "black"  # Texto negro en posiciones abiertas
 edge_color = "white"  # Líneas blancas para contraste
 
-# Nodes and Connections
+# 🔗 Agregar nodos y conexiones
 added_nodes = set()
 levels = {}
 
@@ -81,17 +83,17 @@ for _, row in filtered_df.iterrows():
     title = row["Title"]
     direct_report = row["DirectReport"]
     
-    # Ensure "Adam Westwood-Booth" always has "Head of Compliance"
+    # Asegurar que Adam Westwood-Booth siempre tenga "Head of Compliance"
     if employee == "Adam Westwood-Booth":
         title = "Head of Compliance"
 
-    # Label format
+    # Formato de etiquetas
     if employee == "Open Position":
-        label = f"Open Position\n{title}"  # Open Position + Job Title
+        label = f"Open Position\n{title}"
         node_color = open_color
         font_color = text_color_open
     else:
-        label = f"{employee}\n{title}"  # Employee Name + Job Title
+        label = f"{employee}\n{title}"
         node_color = active_color
         font_color = text_color_active
 
@@ -103,7 +105,6 @@ for _, row in filtered_df.iterrows():
         if direct_report == "Adam Westwood-Booth":
             direct_report_title = "Head of Compliance"
         else:
-            # If direct report is missing a title, default to "Unknown Position"
             direct_report_title = filtered_df.loc[filtered_df["Employee"] == direct_report, "Title"]
             direct_report_title = direct_report_title.values[0] if not direct_report_title.empty else "Unknown Position"
 
@@ -115,12 +116,12 @@ for _, row in filtered_df.iterrows():
         
         dot.edge(direct_report, employee, arrowhead="vee", color=edge_color, penwidth="2")
 
-        # Organizing nodes into levels for centering
+        # Organizar nodos en niveles
         if direct_report not in levels:
             levels[direct_report] = 0
         levels[employee] = levels[direct_report] + 1
 
-# Centering nodes in each level
+# 📌 Alinear nodos por niveles
 level_groups = {}
 for node, level in levels.items():
     if level not in level_groups:
@@ -132,5 +133,5 @@ for level_nodes in level_groups.values():
     for node in level_nodes:
         dot.node(node)
 
-# Display Chart
+# 📌 Mostrar gráfico en Streamlit
 st.graphviz_chart(dot)
