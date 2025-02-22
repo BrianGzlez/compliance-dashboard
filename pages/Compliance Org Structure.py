@@ -2,16 +2,19 @@ import streamlit as st
 import pandas as pd
 import gspread
 import graphviz
-import json
 from google.oauth2.service_account import Credentials
 
-# Configurar página
-st.set_page_config(page_title="Organizational Chart", layout="wide")
+# 🔥 Código corregido para evitar errores con JSON
+try:
+    creds = Credentials.from_service_account_info(st.secrets["GOOGLE_CREDENTIALS"])
+    client = gspread.authorize(creds)
+except KeyError:
+    st.error("🚨 Error: La clave 'GOOGLE_CREDENTIALS' no está definida en los secretos de Streamlit.")
+    st.stop()
+except Exception as e:
+    st.error(f"🚨 Error al cargar las credenciales: {e}")
+    st.stop()
 
-# 🔐 Cargar credenciales desde Streamlit Secrets
-creds_dict = json.loads(st.secrets["GOOGLE_CREDENTIALS"])
-creds = Credentials.from_service_account_info(creds_dict)
-client = gspread.authorize(creds)
 
 # ID de la Hoja de Google Sheets
 SHEET_ID = "1kNILyJzBS5794YmBfPRLdAISb4vMbUZ9G2BjGKDgDDw"
