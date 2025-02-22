@@ -11,7 +11,8 @@ SHEET_ID = "1kNILyJzBS5794YmBfPRLdAISb4vMbUZ9G2BjGKDgDDw"
 
 # 📌 Cargar credenciales desde Streamlit Secrets o un archivo local
 if "google_credentials" in st.secrets:
-    creds_info = json.loads(st.secrets["google_credentials"])
+    creds_info = st.secrets["google_credentials"]
+
     creds = Credentials.from_service_account_info(creds_info)
 else:
     creds = Credentials.from_service_account_file("credentials.json")
