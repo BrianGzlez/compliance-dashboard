@@ -48,35 +48,39 @@ df_active = df_org[df_org['Status'].str.lower() == 'active'].copy()
 # Limpieza de Datos Numéricos
 # -------------------------
 
-# 📌 Función para limpiar y convertir columnas numéricas
-def clean_numeric_column(df, column_name):
-    if column_name in df.columns:
-        df[column_name] = (
-            df[column_name]
-            .astype(str)  # Convertir todo a string
-            .str.replace(r'[$,]', '', regex=True)  # Eliminar símbolos de dinero y comas
-            .str.replace(r'[^\d.-]', '', regex=True)  # Mantener solo números, puntos y guiones
-            .str.strip()  # Eliminar espacios en blanco
-            .replace('', '0')  # Reemplazar valores vacíos con '0'
-            .fillna('0')  # Llenar valores NaN con '0'
-        )
-        df[column_name] = pd.to_numeric(df[column_name], errors='coerce').fillna(0.0).astype(float)
+# Mostrar valores únicos ANTES de limpiar (para depuración)
+st.write("Valores únicos antes de limpiar:", df_org[['Salary', 'Equity', 'Token']].drop_duplicates())
 
-# 📌 Limpiar y convertir las columnas numéricas
+# Asegurar que todas las columnas sean strings antes de limpiar
 for col in ['Salary', 'Equity', 'Token']:
-    clean_numeric_column(df_org, col)
+    df_org[col] = df_org[col].astype(str).str.strip()  # Convertir a string y eliminar espacios en blanco
+    df_org[col] = df_org[col].replace(r'[$,]', '', regex=True)  # Eliminar símbolos de moneda y comas
+    df_org[col] = df_org[col].replace(['', ' ', 'N/A', 'NULL', 'None', '-', '--'], '0')  # Reemplazar valores problemáticos
+    df_org[col] = pd.to_numeric(df_org[col], errors='coerce')  # Convertir a numérico, forzando errores a NaN
+    df_org[col] = df_org[col].fillna(0)  # Llenar valores NaN con 0
 
-# 📌 Aplicar la limpieza también a df_active
+# Filtrar empleados activos
 df_active = df_org[df_org['Status'].str.lower() == 'active'].copy()
-for col in ['Salary', 'Equity', 'Token']:
-    clean_numeric_column(df_active, col)
 
-# 📌 Calcular costos después de la limpieza
+# Aplicar la misma limpieza a df_active
+for col in ['Salary', 'Equity', 'Token']:
+    df_active[col] = pd.to_numeric(df_active[col], errors='coerce').fillna(0)
+
+# Calcular el costo total por empleado
 df_active["Total Cost"] = df_active["Salary"] + df_active["Equity"] + df_active["Token"]
 df_active["Total Salary per Month"] = df_active["Salary"] / 12
 
-# 📌 Llenar valores NaN con 0 en df_active
+# Asegurar que "Total Cost" sea float
+df_org["Total Cost"] = df_org["Salary"] + df_org["Equity"] + df_org["Token"]
+df_org["Total Cost"] = df_org["Total Cost"].astype(float)
+
+# Llenar valores NaN con 0 en todo el DataFrame
+df_org.fillna(0, inplace=True)
 df_active.fillna(0, inplace=True)
+
+# Mostrar valores únicos DESPUÉS de limpiar (para confirmar corrección)
+st.write("Valores únicos después de limpiar:", df_org[['Salary', 'Equity', 'Token']].drop_duplicates())
+
 
 # -------------------------
 # Filtros en el Sidebar
