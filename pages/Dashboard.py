@@ -40,7 +40,7 @@ st.markdown('<p class="title">Compliance Dashboard KRIs</p>', unsafe_allow_html=
 # Cargar Datos de Google Sheets
 # -------------------------
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly", "https://www.googleapis.com/auth/drive.readonly"]
-SHEET_ID = "1kNILyJzBS5794YmBfPRLdAISb4vMbUZ9G2BjGKDgDDw"
+SHEET_ID = "1R3EMYJt7he4CklRTRWtC6iqPzACg_eWyHdV6BaTzTms"
 
 @st.cache_data(ttl=600)
 def load_data():
