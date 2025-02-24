@@ -85,6 +85,7 @@ df_active.fillna(0, inplace=True)
 
 
 
+
 # ✅ Asegurar que "Position" se mantiene correctamente en df_active
 df_active["Position"] = df_active["Position"].str.strip()
 
