@@ -57,11 +57,19 @@ df_active = df_org[df_org['Status'].str.lower() == 'active'].copy()
 st.write("Valores únicos antes de limpiar:", df_org[['Salary', 'Equity', 'Token']].drop_duplicates())
 
 # Asegurar que las columnas sean string antes de eliminar caracteres no numéricos
+# 📌 Limpieza de Datos Numéricos (Salario, Equity, Token)
 for col in ['Salary', 'Equity', 'Token']:
-    df_org[col] = df_org[col].astype(str).str.strip()  # Eliminar espacios en blanco
-    df_org[col] = df_org[col].replace(r'[$,]', '', regex=True)  # Eliminar símbolos de moneda y comas
-    df_org[col] = df_org[col].replace(['', ' ', 'N/A', 'NULL', 'None'], '0')  # Reemplazar valores vacíos y no numéricos
-    df_org[col] = pd.to_numeric(df_org[col], errors='coerce').fillna(0)  # Convertir a numérico y manejar errores
+    df_org[col] = (
+        df_org[col]
+        .astype(str)  # Convertir todo a string para evitar errores
+        .str.replace(r'[$,]', '', regex=True)  # Eliminar símbolos de dinero y comas
+        .str.strip()  # Eliminar espacios en blanco
+        .replace('', '0')  # Reemplazar valores vacíos con '0'
+        .replace('nan', '0')  # Reemplazar texto 'nan' con '0'
+        .fillna('0')  # Reemplazar valores NaN con '0'
+        .astype(float)  # Convertir a float
+    )
+
 
 # Filtrar empleados activos
 df_active = df_org[df_org['Status'].str.lower() == 'active'].copy()
