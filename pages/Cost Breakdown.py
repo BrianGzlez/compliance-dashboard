@@ -54,9 +54,7 @@ df_active = df_org[df_org['Status'].str.lower() == 'active'].copy()
 # Limpieza de Datos Numéricos
 # -------------------------
 # Revisar valores únicos antes de la limpieza
-st.write("Valores únicos antes de limpiar:", df_org[['Salary', 'Equity', 'Token']].drop_duplicates())
 
-# Asegurar que las columnas sean string antes de eliminar caracteres no numéricos
 # 📌 Limpieza de Datos Numéricos (Salario, Equity, Token)
 for col in ['Salary', 'Equity', 'Token']:
     df_org[col] = (
@@ -65,33 +63,26 @@ for col in ['Salary', 'Equity', 'Token']:
         .str.replace(r'[$,]', '', regex=True)  # Eliminar símbolos de dinero y comas
         .str.strip()  # Eliminar espacios en blanco
         .replace('', '0')  # Reemplazar valores vacíos con '0'
-        .replace('nan', '0')  # Reemplazar texto 'nan' con '0'
+        .replace('nan', '0', regex=True)  # Reemplazar texto 'nan' con '0'
         .fillna('0')  # Reemplazar valores NaN con '0'
-        .astype(float)  # Convertir a float
     )
 
-
-# Filtrar empleados activos
-df_active = df_org[df_org['Status'].str.lower() == 'active'].copy()
-
-# Asegurar que las columnas numéricas sean de tipo float en df_active
+# ✅ Ahora convertir a float sin errores
 for col in ['Salary', 'Equity', 'Token']:
-    df_active[col] = pd.to_numeric(df_active[col], errors='coerce').fillna(0)
+    df_org[col] = pd.to_numeric(df_org[col], errors='coerce').fillna(0).astype(float)
 
-# Calcular el costo total por empleado
+# 📌 Asegurar que las columnas de df_active también sean float
+df_active = df_org[df_org['Status'].str.lower() == 'active'].copy()
+for col in ['Salary', 'Equity', 'Token']:
+    df_active[col] = pd.to_numeric(df_active[col], errors='coerce').fillna(0).astype(float)
+
+# 📌 Calcular costos después de la limpieza
 df_active["Total Cost"] = df_active["Salary"] + df_active["Equity"] + df_active["Token"]
 df_active["Total Salary per Month"] = df_active["Salary"] / 12
 
-# Asegurar que Total Cost es float
-df_org["Total Cost"] = df_org["Salary"] + df_org["Equity"] + df_org["Token"]
-df_org["Total Cost"] = df_org["Total Cost"].astype(float)
-
-# Llenar valores NaN con 0 en todo el DataFrame para evitar errores en cálculos
-df_org.fillna(0, inplace=True)
+# 📌 Llenar valores NaN con 0 en df_active
 df_active.fillna(0, inplace=True)
 
-# Revisar valores después de la limpieza
-st.write("Valores únicos después de limpiar:", df_org[['Salary', 'Equity', 'Token']].drop_duplicates())
 
 
 # ✅ Asegurar que "Position" se mantiene correctamente en df_active
