@@ -44,16 +44,32 @@ def load_data():
 df_org, df_vendors = load_data()
 
 # Filtrar empleados activos
+# 📌 Cargar los datos
+df_org, df_vendors = load_data()
+
+# Filtrar empleados activos
 df_active = df_org[df_org['Status'].str.lower() == 'active'].copy()
 
 # -------------------------
 # Limpieza de Datos Numéricos
 # -------------------------
+# Convertir valores vacíos en 0 antes de la conversión a float
 for col in ['Salary', 'Equity', 'Token']:
-    df_active[col] = df_active[col].replace(r'[$,]', '', regex=True).astype(float)
+    df_org[col] = df_org[col].replace(r'[$,]', '', regex=True).replace('', '0').astype(float)
 
-# Calcular Costo Total por Empleado
+# Asegurar que las columnas numéricas sean de tipo float en df_active
+df_active = df_org[df_org['Status'].str.lower() == 'active'].copy()
+for col in ['Salary', 'Equity', 'Token']:
+    df_active[col] = df_active[col].replace(r'[$,]', '', regex=True).replace('', '0').astype(float)
+
+# Calcular el costo total por empleado
 df_active["Total Cost"] = df_active["Salary"] + df_active["Equity"] + df_active["Token"]
+df_active["Total Salary per Month"] = df_active["Salary"] / 12
+
+# Llenar valores NaN con 0
+df_active.fillna(0, inplace=True)
+df_org.fillna(0, inplace=True)
+
 df_active["Total Salary per Month"] = df_active["Salary"] / 12
 # Asegurar que las columnas numéricas sean de tipo float en df_org
 for col in ['Salary', 'Equity', 'Token']:
@@ -72,21 +88,12 @@ df_org["Total Cost"] = df_org["Total Cost"].astype(float)
 # Llenar valores NaN con 0 para evitar errores en cálculos
 df_org.fillna(0, inplace=True)
 
-def categorize_title(title, contract):
-    title = title.lower()
-    if contract.lower() == "consultants":
-        return "Consultors"
-    elif any(substring in title for substring in ["vp - program governance", "vp - global sanctions", "vp - compliance technology", "vp - financial crimes", "vp - kyc & onboarding", "vp - crypto investigations", "vp - bsa officer / risk officer"]):
-        return "VP"
-    elif any(substring in title for substring in ["avp - compliance team lead", "avp - onboarding & kyc (edd)", "avp - program governance", "avp - fraud", "avp - vendor management"]):
-        return "AVP"
-    elif "analyst" in title:
-        return "Analyst"
-    elif "associate" in title:
-        return "Associate"
-    return "Other"
 
-df_active["Job Level"] = df_active.apply(lambda row: "Consultors" if row["Contract"].lower() == "consultants" else row["Position"], axis=1)
+
+# ✅ Asegurar que "Position" se mantiene correctamente en df_active
+df_active["Position"] = df_active["Position"].str.strip()
+
+
 # -------------------------
 # Filtros en el Sidebar (Panel Izquierdo)
 # -------------------------
@@ -98,16 +105,24 @@ with st.sidebar.expander("📍 Location Filters", expanded=False):
 with st.sidebar.expander("🏢 Department Filters", expanded=False):
     selected_department = st.multiselect("Select Department(s)", df_active["Department"].unique(), default=df_active["Department"].unique())
 
-with st.sidebar.expander("💼 Job Level Filters", expanded=False):
-    selected_job_level = st.multiselect("Select Job Level(s)", ["VP", "AVP", "Analyst", "Associate", "Consultors"], default=["VP", "AVP", "Analyst", "Associate", "Consultors"])
+with st.sidebar.expander("💼 Position Filters", expanded=False):
+    available_positions = df_active["Position"].unique().tolist()  # Obtener todas las posiciones únicas
+    selected_job_level = st.multiselect("Select Position", available_positions, default=available_positions)
+
     
 
-df_filtered = df_active[(df_active["Department"].isin(selected_department)) & (df_active["State"].isin(selected_state)) & (df_active["Job Level"].isin(selected_job_level))]
+df_filtered = df_active[(df_active["Department"].isin(selected_department)) & (df_active["State"].isin(selected_state)) & (df_active["Position"].isin(selected_job_level))]
 
 # -------------------------
 # Métricas clave
 # -------------------------
 # Asegurar que "Contract Yearly Price" es numérico
+# Convertir precios a formato numérico, asegurando que los valores vacíos sean 0
+for col in ["Contract Monthly Price", "Contract Yearly Price"]:
+    if col in df_vendors.columns:
+        df_vendors[col] = df_vendors[col].astype(str).replace(r'[$,]', '', regex=True).replace('', '0').astype(float)
+
+
 df_vendors["Contract Yearly Price"] = df_vendors["Contract Yearly Price"].replace(r'[$,]', '', regex=True)
 df_vendors["Contract Yearly Price"] = pd.to_numeric(df_vendors["Contract Yearly Price"], errors="coerce").fillna(0)
 
@@ -144,15 +159,15 @@ with col4:
 # Visualizaciones
 # -------------------------
 st.plotly_chart(px.bar(df_filtered, x="Department", y="Total Cost", title="Total Cost by Department", color="Department"))
-fig_pie = px.pie(df_filtered, names="Job Level", values="Total Cost", title="Total Cost by Job Level", hole=0.3, template="plotly_white")
+fig_pie = px.pie(df_filtered, names="Position", values="Total Cost", title="Total Cost by Position", hole=0.3, template="plotly_white")
 fig_pie.update_traces(textinfo='percent+label', pull=[0.1 if i == max(df_filtered["Total Cost"]) else 0 for i in df_filtered["Total Cost"]])
 st.plotly_chart(fig_pie)
 
 # Mostrar tabla de empleados cuando se filtra por gráfico o sidebar
 if len(selected_job_level) == 1:
     st.subheader(f"Employees in {selected_job_level[0]} Level")
-    df_filtered_by_level = df_filtered[df_filtered["Job Level"] == selected_job_level[0]]
-    st.dataframe(df_filtered_by_level[['Compliance Employee', 'Title', 'Department', 'Job Level', 'Salary', 'Equity', 'Token', 'Total Cost']])
+    df_filtered_by_level = df_filtered[df_filtered["Position"] == selected_job_level[0]]
+    st.dataframe(df_filtered_by_level[['Compliance Employee', 'Title', 'Department', 'Position', 'Salary', 'Equity', 'Token', 'Total Cost']])
 
 
 # -------------------------
@@ -162,10 +177,10 @@ st.subheader("Employee Details")
 col_details, col_chart = st.columns(2)
 
 with col_details:
-    st.dataframe(df_filtered[['Compliance Employee', 'Title', 'Department', 'Job Level', 'Salary', 'Equity', 'Token', 'Total Cost']])
+    st.dataframe(df_filtered[['Compliance Employee', 'Title', 'Department', 'Position', 'Salary', 'Equity', 'Token', 'Total Cost']])
 
 with col_chart:
-    st.plotly_chart(px.box(df_filtered, x='Job Level', y='Total Cost', title="Total Cost Distribution by Job Level", color='Job Level', template="plotly_white"))
+    st.plotly_chart(px.box(df_filtered, x='Position', y='Total Cost', title="Total Cost Distribution by Position", color='Position', template="plotly_white"))
 
 
 # -------------------------
