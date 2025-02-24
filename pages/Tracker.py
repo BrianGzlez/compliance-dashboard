@@ -6,7 +6,7 @@ import json
 from google.oauth2.service_account import Credentials
 
 # 📌 Google Sheets Configuration
-SHEET_ID = "1kNILyJzBS5794YmBfPRLdAISb4vMbUZ9G2BjGKDgDDw"
+SHEET_ID = "1R3EMYJt7he4CklRTRWtC6iqPzACg_eWyHdV6BaTzTms"
 
 # 📌 Definir los permisos (scopes) correctos para Google Sheets y Drive
 SCOPES = [
