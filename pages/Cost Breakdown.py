@@ -53,10 +53,15 @@ df_active = df_org[df_org['Status'].str.lower() == 'active'].copy()
 # -------------------------
 # Limpieza de Datos Numéricos
 # -------------------------
-# Convertir valores vacíos y caracteres especiales antes de convertir a float
+
+# Verificar qué valores hay en las columnas problemáticas antes de limpiar
+st.write("Valores únicos antes de limpiar:", df_org[['Salary', 'Equity', 'Token']].drop_duplicates())
+
+# Asegurar que las columnas sean strings antes de eliminar caracteres no numéricos
 for col in ['Salary', 'Equity', 'Token']:
-    df_org[col] = df_org[col].astype(str).replace(r'[$,]', '', regex=True)  # Eliminar símbolos no numéricos
-    df_org[col] = pd.to_numeric(df_org[col], errors='coerce').fillna(0)  # Convertir a numérico, manejar errores y llenar NaN con 0
+    df_org[col] = df_org[col].astype(str).str.strip()  # Eliminar espacios en blanco
+    df_org[col] = df_org[col].replace(r'[$,]', '', regex=True)  # Eliminar símbolos $
+    df_org[col] = pd.to_numeric(df_org[col], errors='coerce').fillna(0)  # Convertir a numérico y manejar errores
 
 # Filtrar empleados activos
 df_active = df_org[df_org['Status'].str.lower() == 'active'].copy()
@@ -69,13 +74,17 @@ for col in ['Salary', 'Equity', 'Token']:
 df_active["Total Cost"] = df_active["Salary"] + df_active["Equity"] + df_active["Token"]
 df_active["Total Salary per Month"] = df_active["Salary"] / 12
 
-# Asegurar que Total Cost es float
+# Asegurar que "Total Cost" sea float
 df_org["Total Cost"] = df_org["Salary"] + df_org["Equity"] + df_org["Token"]
 df_org["Total Cost"] = df_org["Total Cost"].astype(float)
 
 # Llenar valores NaN con 0 en todo el DataFrame para evitar errores en cálculos
 df_org.fillna(0, inplace=True)
 df_active.fillna(0, inplace=True)
+
+# Verificar los valores después de limpiar
+st.write("Valores únicos después de limpiar:", df_org[['Salary', 'Equity', 'Token']].drop_duplicates())
+
 
 
 
