@@ -63,9 +63,9 @@ open_positions_df = open_positions_df.dropna(axis=1, how="all")  # Remove empty 
 active_employees_df = df_org[df_org[status_column] == "active"].copy()
 
 # 📌 Mostrar datos en Streamlit
-st.title("📊 Arkham Hiring Tracker")
+st.title("📊 Compliance Hiring Tracker")
 
-st.subheader("📋 Hiring Process Overview (Offer Stage Only)")
+st.subheader("📋 Hiring Process Overview - Offer Stage Only")
 st.dataframe(hiring_process_df)
 
 st.subheader("📌 Open Positions")
