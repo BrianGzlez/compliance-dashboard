@@ -327,3 +327,45 @@ with col_chart:
 with col_table:
     st.subheader("📜 Vendor Details")
     st.dataframe(df_vendors[["Status", "Vendor Name", "Vendor Contact Name", "Vendor Email", "Contract Duration", "Contract Monthly Price", "Contract Yearly Price"]])
+
+
+
+st.title("Compliance Consultant Cost(s)")
+
+# Agregar filtro en el sidebar para seleccionar el tipo de impacto presupuestario
+with st.sidebar.expander("💰 Budget Filters", expanded=False):
+    budget_input = st.number_input("Enter the Estimated Annual Budget ($)", min_value=0, value=10000000, step=100000)
+
+# Calcular el costo total de consultores
+df_consultant_salary_total = df_org[df_org["Contract"].str.lower() == "consultants"]["Salary"].sum()
+df_consultant_monthly_total = df_consultant_salary_total / 12
+df_consultant_headcount = df_org[df_org["Contract"].str.lower() == "consultants"].shape[0]
+
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    st.metric("Consultant Cost (Yearly)", f"${df_consultant_salary_total:,.2f}")
+
+with col2:
+    st.metric("Total Consultant Cost (Monthly)", f"${df_consultant_monthly_total:,.2f}")
+
+with col3:
+    st.metric("Consultant Head Count", f"{df_consultant_headcount}")
+
+# Sección de costos totales
+compliance_operations_cost_yearly = df_active_salary_total + df_consultant_salary_total
+compliance_operations_cost_monthly = compliance_operations_cost_yearly / 12
+budget_remaining = budget_input - compliance_operations_cost_yearly
+
+col4, col5, col6 = st.columns(3)
+
+with col4:
+    st.metric("Compliance Operations Cost (Yearly)", f"${compliance_operations_cost_yearly:,.2f}")
+
+with col5:
+    st.metric("Compliance Operations Cost (Monthly)", f"${compliance_operations_cost_monthly:,.2f}")
+
+with col6:
+    st.metric("Budget", f"${budget_input:,.2f}")
+    st.metric("Budget Remaining", f"${budget_remaining:,.2f}")
+
