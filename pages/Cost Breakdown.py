@@ -348,6 +348,9 @@ with col2:
 with col3:
     st.metric("Consultant Head Count", f"{df_consultant_headcount}")
 
+
+st.subheader("Total Costs")
+
 # Sección de costos totales
 compliance_operations_cost_yearly = df_active_salary_total + df_consultant_salary_total
 compliance_operations_cost_monthly = compliance_operations_cost_yearly / 12
@@ -359,20 +362,3 @@ with col4:
 
 with col5:
     st.metric("Compliance Operations Cost (Monthly)", f"${compliance_operations_cost_monthly:,.2f}")
-
-# Gráfico de distribución de salarios de consultores
-st.subheader("Consultant Salary Distribution")
-fig_salary_dist = px.histogram(df_org[df_org["Status"].str.lower() == "consultant"], x="Salary", nbins=20, title="Salary Distribution of Consultants", template="plotly_white")
-st.plotly_chart(fig_salary_dist)
-
-# Gráfico de costo total de consultores por departamento
-st.subheader("Consultant Cost by Department")
-df_consultant_dept = df_org[df_org["Status"].str.lower() == "consultant"].groupby("Department")["Salary"].sum().reset_index()
-fig_dept_cost = px.bar(df_consultant_dept, x="Department", y="Salary", title="Total Consultant Cost by Department", template="plotly_white", text_auto=True)
-st.plotly_chart(fig_dept_cost)
-
-# Gráfico de relación entre salario y duración del contrato si está disponible
-if "Contract Duration" in df_org.columns:
-    st.subheader("Consultant Salary vs Contract Duration")
-    fig_salary_duration = px.scatter(df_org[df_org["Status"].str.lower() == "consultant"], x="Contract Duration", y="Salary", title="Salary vs Contract Duration", template="plotly_white", size="Salary", color="Department")
-    st.plotly_chart(fig_salary_duration)
