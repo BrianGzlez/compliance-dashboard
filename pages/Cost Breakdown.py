@@ -70,6 +70,11 @@ df_active["Total Salary per Month"] = df_active["Salary"] / 12
 # 📊 Filtros en el Sidebar
 st.sidebar.header("🛠 Filters")
 
+# -------------------------
+# Filtros en el Sidebar
+# -------------------------
+st.sidebar.header("🛠 Filters")
+
 with st.sidebar.expander("📍 Location Filters", expanded=False):
     selected_state = st.multiselect("Select State(s)", df_active["State"].unique(), default=df_active["State"].unique())
 
@@ -84,7 +89,9 @@ df_filtered = df_active[(df_active["Department"].isin(selected_department)) &
                          (df_active["State"].isin(selected_state)) & 
                          (df_active["Position"].isin(selected_job_level))]
 
-# 📊 Métricas clave
+# -------------------------
+# Métricas clave
+# -------------------------
 st.title("Compliance Employee Cost Breakdown")
 
 col1, col2, col3, col4 = st.columns(4)
@@ -101,11 +108,61 @@ with col3:
     st.metric("Total Yearly Tokens", f"${df_filtered['Token'].sum():,.2f}")
     st.metric("Average Equity per Year", f"${df_filtered['Equity'].mean():,.2f}")
 
-# 📊 Visualizaciones
+# -------------------------
+# Visualizaciones
+# -------------------------
 st.plotly_chart(px.bar(df_filtered, x="Department", y="Total Cost", title="Total Cost by Department", color="Department"))
 fig_pie = px.pie(df_filtered, names="Position", values="Total Cost", title="Total Cost by Position", hole=0.3, template="plotly_white")
 st.plotly_chart(fig_pie)
 
-# 📊 Tabla con la Información de Empleados
+# -------------------------
+# Tabla con la Información de Empleados
+# -------------------------
 st.subheader("Employee Details")
-st.dataframe(df_filtered[["Compliance Employee", "Title", "Department", "Position", "Salary", "Equity", "Token", "Total Cost"]])
+st.dataframe(df_filtered[['Compliance Employee', 'Title', 'Department', 'Position', 'Salary', 'Equity', 'Token', 'Total Cost']])
+
+# -------------------------
+# Budget Impact and Monthly Projection
+# -------------------------
+st.subheader("📊 Budget Impact")
+
+with st.sidebar.expander("💰 Budget Filters", expanded=False):
+    budget_input = st.number_input("Enter the Estimated Annual Budget ($)", min_value=0, value=10000000, step=100000)
+
+df_active_total = df_org[df_org["Status"].str.lower() == "active"]["Total Cost"].sum()
+
+col1, col2, col3, col4 = st.columns(4)
+with col1:
+    st.metric("Current Year Budget Usage", f"${df_active_total:,.2f}")
+with col2:
+    st.metric("Allowed Monthly Budget", f"${budget_input / 12:,.2f}")
+with col3:
+    remaining_budget = budget_input - df_active_total
+    st.metric("Remaining Budget", f"${remaining_budget:,.2f}")
+
+# -------------------------
+# Vendor Cost Analysis
+# -------------------------
+st.subheader("💰 Vendor Cost Analysis")
+
+# 📌 Asegurar conversión segura de precios de contratos
+for col in ["Contract Monthly Price", "Contract Yearly Price"]:
+    clean_numeric_column(df_vendors, col)
+
+# 📌 Filtrar solo vendors activos
+df_active_vendors = df_vendors[df_vendors["Status"].str.lower() == "active"]
+
+# 📌 Calcular métricas clave
+total_yearly_cost = df_active_vendors["Contract Yearly Price"].sum()
+
+col1, col2, col3, col4 = st.columns(4)
+with col1:
+    st.metric("Total Yearly Vendor Cost", f"${total_yearly_cost:,.2f}")
+
+fig_vendor_cost = px.bar(df_active_vendors, x="Vendor Name", y="Contract Yearly Price", title="Yearly Cost per Vendor",
+                         labels={"Contract Yearly Price": "Yearly Cost ($)"}, template="plotly_white", text_auto=True, color="Vendor Name")
+st.plotly_chart(fig_vendor_cost)
+
+# 📌 Mostrar datos limpios
+st.subheader("📜 Vendor Details")
+st.dataframe(df_vendors[["Status", "Vendor Name", "Contract Yearly Price"]])
