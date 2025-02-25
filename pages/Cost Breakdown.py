@@ -333,11 +333,16 @@ with col_table:
 st.subheader("Compliance Consultant Cost(s)")
 
 
+st.title("Compliance Consultant Cost(s)")
+
+# Agregar filtro en el sidebar para seleccionar el tipo de impacto presupuestario
+with st.sidebar.expander("💰 Budget Filters", expanded=False):
+    budget_input = st.number_input("Enter the Estimated Annual Budget ($)", min_value=0, value=10000000, step=100000)
 
 # Calcular el costo total de consultores
-df_consultant_salary_total = df_org[df_org["Contract"].str.lower() == "consultants"]["Salary"].sum()
+df_consultant_salary_total = df_org[df_org["Status"].str.lower() == "consultant"]["Salary"].sum()
 df_consultant_monthly_total = df_consultant_salary_total / 12
-df_consultant_headcount = df_org[df_org["Contract"].str.lower() == "consultants"].shape[0]
+df_consultant_headcount = df_org[df_org["Status"].str.lower() == "consultant"].shape[0]
 
 col1, col2, col3 = st.columns(3)
 
@@ -367,3 +372,19 @@ with col6:
     st.metric("Budget", f"${budget_input:,.2f}")
     st.metric("Budget Remaining", f"${budget_remaining:,.2f}")
 
+# Gráfico de distribución de salarios de consultores
+st.subheader("Consultant Salary Distribution")
+fig_salary_dist = px.histogram(df_org[df_org["Status"].str.lower() == "consultant"], x="Salary", nbins=20, title="Salary Distribution of Consultants", template="plotly_white")
+st.plotly_chart(fig_salary_dist)
+
+# Gráfico de costo total de consultores por departamento
+st.subheader("Consultant Cost by Department")
+df_consultant_dept = df_org[df_org["Status"].str.lower() == "consultant"].groupby("Department")["Salary"].sum().reset_index()
+fig_dept_cost = px.bar(df_consultant_dept, x="Department", y="Salary", title="Total Consultant Cost by Department", template="plotly_white", text_auto=True)
+st.plotly_chart(fig_dept_cost)
+
+# Gráfico de relación entre salario y duración del contrato si está disponible
+if "Contract Duration" in df_org.columns:
+    st.subheader("Consultant Salary vs Contract Duration")
+    fig_salary_duration = px.scatter(df_org[df_org["Status"].str.lower() == "consultant"], x="Contract Duration", y="Salary", title="Salary vs Contract Duration", template="plotly_white", size="Salary", color="Department")
+    st.plotly_chart(fig_salary_duration)
