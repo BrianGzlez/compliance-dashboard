@@ -49,14 +49,16 @@ def clean_numeric_column(df, col):
         df[col] = pd.to_numeric(df[col], errors='coerce')
         df[col] = df[col].fillna(0)
 
-# Aplicar limpieza a df_org (empleados)
-for col in ['Salary', 'Equity', 'Token']:
-    clean_numeric_column(df_org, col)
-
-# Verificar si df_vendors tiene las columnas antes de limpiarlas
+# Verificar si df_vendors no está vacío antes de aplicar la limpieza
 if not df_vendors.empty:
     for col in ["Contract Monthly Price", "Contract Yearly Price"]:
-        clean_numeric_column(df_vendors, col)
+        if col in df_vendors.columns:
+            clean_numeric_column(df_vendors, col)
+
+# Aplicar limpieza a df_org (empleados)
+for col in ['Salary', 'Equity', 'Token']:
+    if col in df_org.columns:
+        clean_numeric_column(df_org, col)
 
 # Filtrar empleados activos
 df_active = df_org[df_org['Status'].str.lower() == 'active'].copy()
