@@ -238,6 +238,11 @@ else:
 # -------------------------
 st.subheader("📊 Compliance Open Positions")
 
+# Agregar filtro en el sidebar para seleccionar el tipo de impacto presupuestario
+with st.sidebar.expander("💰 Budget Filters", expanded=False):
+    budget_input = st.number_input("Enter the Estimated Annual Budget ($)", min_value=0, value=10000000, step=100000)
+
+# Calcular el salario total de posiciones abiertas si aún no está definido
 df_open_position_salary_total = df_org[df_org["Status"].str.lower() == "open position"]["Salary"].sum()
 df_active_salary_total = df_org[df_org["Status"].str.lower() == "active"]["Salary"].sum()
 df_offer_stage_salary_total = df_org[df_org["Status"].str.lower() == "offer stage"]["Salary"].sum()
