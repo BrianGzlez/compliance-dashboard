@@ -238,9 +238,11 @@ else:
 # -------------------------
 st.subheader("📊 Compliance Open Positions")
 
-# Calcular el salario total de posiciones abiertas si aún no está definido
 df_open_position_salary_total = df_org[df_org["Status"].str.lower() == "open position"]["Salary"].sum()
 df_active_salary_total = df_org[df_org["Status"].str.lower() == "active"]["Salary"].sum()
+df_offer_stage_salary_total = df_org[df_org["Status"].str.lower() == "offer stage"]["Salary"].sum()
+
+total_with_hires = df_active_salary_total + df_open_position_salary_total + df_offer_stage_salary_total
 
 col1, col2, col3 = st.columns(3)
 
@@ -264,19 +266,18 @@ with col5:
 with col6:
     st.metric("Total Yearly (Actual + Open)", f"${df_active_salary_total + df_open_position_salary_total:,.2f}")
 
-
-
 # Crear gráfico de barras comparando los diferentes escenarios
 fig_budget_comparison = px.bar(
-    x=["Current Budget Usage", "Projected with Hires", "Budget"],
-    y=[df_active_total, total_with_hires, budget_input],
+    x=["Current Salary Usage", "Projected with Hires", "Budget"],
+    y=[df_active_salary_total, total_with_hires, budget_input],
     title="Budget Scenario Comparison",
-    labels={"x": "Scenario", "y": "Total Cost ($)"},
+    labels={"x": "Scenario", "y": "Total Salary ($)"},
     template="plotly_white",
     text_auto=True
 )
 
 st.plotly_chart(fig_budget_comparison)
+
 # -------------------------
 # Vendor Cost Analysis
 # -------------------------
