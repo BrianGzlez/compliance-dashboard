@@ -238,6 +238,10 @@ else:
 # -------------------------
 st.subheader("📊 Compliance Open Positions")
 
+# Calcular el salario total de posiciones abiertas si aún no está definido
+df_open_position_salary_total = df_org[df_org["Status"].str.lower() == "open position"]["Salary"].sum()
+df_active_salary_total = df_org[df_org["Status"].str.lower() == "active"]["Salary"].sum()
+
 col1, col2, col3 = st.columns(3)
 
 with col1:
@@ -247,18 +251,19 @@ with col2:
     st.metric("Total Anticipated Employees", f"{df_filtered.shape[0] + df_org[df_org['Status'].str.lower() == 'open position'].shape[0]}")
 
 with col3:
-    st.metric("Open Position Salary (Yearly)", f"${df_open_position_total:,.2f}")
+    st.metric("Open Position Salary (Yearly)", f"${df_open_position_salary_total:,.2f}")
 
 col4, col5, col6 = st.columns(3)
 
 with col4:
-    st.metric("Open Position Salary (Monthly)", f"${df_open_position_total / 12:,.2f}")
+    st.metric("Open Position Salary (Monthly)", f"${df_open_position_salary_total / 12:,.2f}")
 
 with col5:
-    st.metric("Total Monthly (Actual + Open)", f"${(df_active_total + df_open_position_total) / 12:,.2f}")
+    st.metric("Total Monthly (Actual + Open)", f"${(df_active_salary_total + df_open_position_salary_total) / 12:,.2f}")
 
 with col6:
-    st.metric("Total Yearly (Actual + Open)", f"${df_active_total + df_open_position_total:,.2f}")
+    st.metric("Total Yearly (Actual + Open)", f"${df_active_salary_total + df_open_position_salary_total:,.2f}")
+
 
 
 # Crear gráfico de barras comparando los diferentes escenarios
