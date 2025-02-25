@@ -330,11 +330,9 @@ with col_table:
 
 
 
-st.title("Compliance Consultant Cost(s)")
+st.subheader("Compliance Consultant Cost(s)")
 
-# Agregar filtro en el sidebar para seleccionar el tipo de impacto presupuestario
-with st.sidebar.expander("💰 Budget Filters", expanded=False):
-    budget_input = st.number_input("Enter the Estimated Annual Budget ($)", min_value=0, value=10000000, step=100000)
+
 
 # Calcular el costo total de consultores
 df_consultant_salary_total = df_org[df_org["Contract"].str.lower() == "consultants"]["Salary"].sum()
