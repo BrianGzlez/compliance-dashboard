@@ -11,7 +11,7 @@ import numpy as np
 # -------------------------
 # Página y CSS
 # -------------------------
-st.set_page_config(page_title="Compliance Dashboard KRIs", layout="wide")
+st.set_page_config(page_title="Compliance Team Tracker", layout="wide")
 st.markdown(
     """
     <style>
@@ -34,7 +34,7 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
-st.markdown('<p class="title">Compliance Dashboard KRIs</p>', unsafe_allow_html=True)
+st.markdown('<p class="title">Compliance Team Trackers</p>', unsafe_allow_html=True)
 
 # -------------------------
 # Cargar Datos de Google Sheets
