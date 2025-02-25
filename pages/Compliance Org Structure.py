@@ -67,10 +67,10 @@ departments = sorted(df["Department"].dropna().unique().tolist())
 selected_department = st.sidebar.selectbox("Select Department:", ["All Departments"] + departments)
 
 # 🔎 Filtrar datos por departamento si se ha seleccionado uno
-if selected_department != "All Departments":
-    filtered_df = df[df["Department"] == selected_department]
+if selected_department == "All Departments":
+    filtered_df = df.copy()  # Asegurar que se incluya todo
 else:
-    filtered_df = df
+    filtered_df = df[df["Department"] == selected_department]
 
 # 🎨 Función para generar organigrama
 def generate_org_chart(data):
@@ -114,11 +114,9 @@ def generate_org_chart(data):
             added_nodes.add(employee)
 
         if direct_report and direct_report != "Open Position":
-            if direct_report == "Adam Westwood-Booth":
-                direct_report_title = "Head of Compliance"
-            else:
-                direct_report_title = data.loc[data["Employee"] == direct_report, "Title"]
-                direct_report_title = direct_report_title.values[0] if not direct_report_title.empty else "Unknown Position"
+            # Buscar título de DirectReport
+            direct_report_title = data.loc[data["Employee"] == direct_report, "Title"]
+            direct_report_title = direct_report_title.values[0] if not direct_report_title.empty else "Unknown Position"
 
             direct_report_label = f"{direct_report}\n{direct_report_title}"
 
@@ -151,6 +149,7 @@ def generate_org_chart(data):
 st.subheader(f"Organigrama de {selected_department}")
 st.graphviz_chart(generate_org_chart(filtered_df))
 
-# 📌 Mostrar organigrama completo
-st.subheader("Organigrama Completo de la Organización")
-st.graphviz_chart(generate_org_chart(df))
+# 📌 Mostrar organigrama completo si se seleccionó "All Departments"
+if selected_department == "All Departments":
+    st.subheader("Organigrama Completo de la Organización")
+    st.graphviz_chart(generate_org_chart(df))
