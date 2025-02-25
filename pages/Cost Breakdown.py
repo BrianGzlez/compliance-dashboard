@@ -236,38 +236,38 @@ else:
 # -------------------------
 # Budget Impact and Monthly Projection
 # -------------------------
-st.subheader("📊 Budget Impact")
+st.subheader("📊 Compliance Open Positions")
+Í
+col1, col2, col3 = st.columns(3)
 
-# Agregar filtro en el sidebar para seleccionar el tipo de impacto presupuestario
-with st.sidebar.expander("💰 Budget Filters", expanded=False):
-    budget_input = st.number_input("Enter the Estimated Annual Budget ($)", min_value=0, value=10000000, step=100000)
-
-
-
-
-# Filtrar datos según el estado de los empleados
-df_active_total = df_org[df_org["Status"].str.lower() == "active"]["Total Cost"].sum()
-df_offer_stage_total = df_org[df_org["Status"].str.lower() == "offer stage"]["Total Cost"].sum()
-df_open_position_total = df_org[df_org["Status"].str.lower() == "open position"]["Total Cost"].sum()
-
-# Calcular el incremento en caso de contratar todas las posiciones abiertas y en oferta
-total_with_hires = df_active_total + df_offer_stage_total + df_open_position_total
-increase_percentage = ((total_with_hires - df_active_total) / df_active_total) * 100 if df_active_total > 0 else 0
-
-# Mostrar los valores calculados
-col1, col2, col3, col4 = st.columns(4)
 with col1:
-    st.metric("Current Year Budget Usage", f"${df_active_total:,.2f}")
-    st.metric("Projected Budget with Hires", f"${total_with_hires:,.2f}")
+    st.metric("Total Salary (Yearly)", f"${df_filtered['Salary'].sum():,.2f}")
+    st.metric("Total Salary (Monthly)", f"${df_filtered['Total Salary per Month'].sum():,.2f}")
+    st.metric("Open Positions #", f"{df_org[df_org['Status'].str.lower() == 'open position'].shape[0]}")
+
 with col2:
-    st.metric("Increase %", f"{increase_percentage:.2f}%")
-    st.metric("Allowed Monthly Budget", f"${budget_input / 12:,.2f}")
+    st.metric("Total Equity Allocated", f"${df_filtered['Equity'].sum():,.2f}")
+    st.metric("Average Salary", f"${df_filtered['Salary'].mean():,.2f}")
+    st.metric("Total Anticipated Employees", f"{df_filtered.shape[0] + df_org[df_org['Status'].str.lower() == 'open position'].shape[0]}")
+
 with col3:
-    st.metric("Offer Stage Positions Cost", f"${df_offer_stage_total:,.2f}")
-    st.metric("Open Positions Cost", f"${df_open_position_total:,.2f}")
+    st.metric("Total Token Allocated", f"${df_filtered['Token'].sum():,.2f}")
+    st.metric("Average Equity Allocation", f"${df_filtered['Equity'].mean():,.2f}")
+    st.metric("Average Token Allocation", f"${df_filtered['Token'].mean():,.2f}")
+
+col4, col5, col6 = st.columns(3)
+
 with col4:
-    remaining_budget = budget_input - total_with_hires
-    st.metric("Remaining Budget", f"${remaining_budget:,.2f}")
+    st.metric("Open Position Salary (Yearly)", f"${df_open_position_total:,.2f}")
+    st.metric("Offer Stage Positions Cost", f"${df_offer_stage_total:,.2f}")
+
+with col5:
+    st.metric("Open Position Salary (Monthly)", f"${df_open_position_total / 12:,.2f}")
+    st.metric("Total Monthly (Actual + Open)", f"${(df_active_total + df_open_position_total) / 12:,.2f}")
+
+with col6:
+    st.metric("Total Yearly (Actual + Open)", f"${df_active_total + df_open_position_total:,.2f}")
+    st.metric("Full-Time Head Count", f"{df_filtered.shape[0]}")
 
 # Crear gráfico de barras comparando los diferentes escenarios
 fig_budget_comparison = px.bar(
