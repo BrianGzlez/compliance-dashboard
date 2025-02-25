@@ -332,11 +332,6 @@ with col_table:
 
 st.subheader("Compliance Consultant Cost(s)")
 
-
-# Agregar filtro en el sidebar para seleccionar el tipo de impacto presupuestario
-with st.sidebar.expander("💰 Budget Filters", expanded=False):
-    budget_input = st.number_input("Enter the Estimated Annual Budget ($)", min_value=0, value=10000000, step=100000)
-
 # Calcular el costo total de consultores
 df_consultant_salary_total = df_org[df_org["Status"].str.lower() == "consultant"]["Salary"].sum()
 df_consultant_monthly_total = df_consultant_salary_total / 12
@@ -356,19 +351,14 @@ with col3:
 # Sección de costos totales
 compliance_operations_cost_yearly = df_active_salary_total + df_consultant_salary_total
 compliance_operations_cost_monthly = compliance_operations_cost_yearly / 12
-budget_remaining = budget_input - compliance_operations_cost_yearly
 
-col4, col5, col6 = st.columns(3)
+col4, col5 = st.columns(2)
 
 with col4:
     st.metric("Compliance Operations Cost (Yearly)", f"${compliance_operations_cost_yearly:,.2f}")
 
 with col5:
     st.metric("Compliance Operations Cost (Monthly)", f"${compliance_operations_cost_monthly:,.2f}")
-
-with col6:
-    st.metric("Budget", f"${budget_input:,.2f}")
-    st.metric("Budget Remaining", f"${budget_remaining:,.2f}")
 
 # Gráfico de distribución de salarios de consultores
 st.subheader("Consultant Salary Distribution")
