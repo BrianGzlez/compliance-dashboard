@@ -136,25 +136,25 @@ total_licensing_cost = df_vendors[df_vendors["Status"].str.lower() == "active"][
 # Calcular el costo total de operación del compliance
 total_compliance_operation_cost = df_filtered["Total Cost"].sum() + total_licensing_cost
 
-st.title("Compliance Employee Cost Breakdown")
+st.title("Compliance Internal Employee Cost(s)")
 
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
-    st.metric("Total Yearly Salary", f"${df_filtered['Salary'].sum():,.2f}")
-    st.metric("Total Salary per Month", f"${df_filtered['Total Salary per Month'].sum():,.2f}")
+    st.metric("Total Salary (Yearly)", f"${df_filtered['Salary'].sum():,.2f}")
+    st.metric("Total Salary (Monthly)", f"${df_filtered['Total Salary per Month'].sum():,.2f}")
 
 with col2:
-    st.metric("Total Yearly Equity", f"${df_filtered['Equity'].sum():,.2f}")
+    st.metric("Total Equity Allocated", f"${df_filtered['Equity'].sum():,.2f}")
     st.metric("Average Salary", f"${df_filtered['Salary'].mean():,.2f}")
 
 with col3:
-    st.metric("Total Yearly Tokens", f"${df_filtered['Token'].sum():,.2f}")
-    st.metric("Average Equity per Year", f"${df_filtered['Equity'].mean():,.2f}")
+    st.metric("Total Token Allocated", f"${df_filtered['Token'].sum():,.2f}")
+    st.metric("Average Equity Allocation", f"${df_filtered['Equity'].mean():,.2f}")
 
 with col4:
-    st.metric("Total Vendor Cost per Year", f"${total_licensing_cost:,.2f}")
-    st.metric("Total Compliance Operation Cost", f"${total_compliance_operation_cost:,.2f}")
+    st.metric("Full-Time Head Count", f"{df_filtered.shape[0]}")
+    st.metric("Average Token Allocation", f"${df_filtered['Token'].mean():,.2f}")
 
 
 # -------------------------
