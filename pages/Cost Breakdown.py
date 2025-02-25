@@ -40,25 +40,15 @@ def load_data():
 # Cargar los datos
 df_org, df_vendors = load_data()
 
-# Función para limpiar columnas numéricas (para vendors)
-def clean_numeric_column(df, col):
-    # Convertir a string y eliminar espacios
-    df[col] = df[col].astype(str).str.strip()
-    # Eliminar símbolos de moneda y comas
-    df[col] = df[col].replace(r'[$,]', '', regex=True)
-    # Reemplazar valores problemáticos por '0'
-    df[col] = df[col].replace(['', ' ', 'N/A', 'NULL', 'None', '-', '--'], '0')
-    # Convertir a numérico usando pd.to_numeric (evita errores al encontrar cadenas vacías)
-    df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
-
 # Limpieza de Datos Numéricos para df_org (empleados)
 for col in ['Salary', 'Equity', 'Token']:
-    df_org[col] = df_org[col].astype(str).str.strip()
-    df_org[col] = df_org[col].replace(r'[$,]', '', regex=True)
-    df_org[col] = df_org[col].replace(['', ' ', 'N/A', 'NULL', 'None', '-', '--'], '0')
-    df_org[col] = pd.to_numeric(df_org[col], errors='coerce').fillna(0)
+    df_org[col] = df_org[col].astype(str).str.strip()  # Asegurar que son strings y eliminar espacios
+    df_org[col] = df_org[col].replace(r'[$,]', '', regex=True)  # Eliminar signos de moneda y comas
+    df_org[col] = df_org[col].replace(['', ' ', 'N/A', 'NULL', 'None', '-', '--'], None)  # Reemplazar valores problemáticos con None
+    df_org = df_org.dropna(subset=[col])  # Eliminar filas donde el valor es None
+    df_org[col] = pd.to_numeric(df_org[col], errors='coerce')  # Convertir a número
 
-# Limpieza de Datos Numéricos para df_vendors
+# Limpiar columnas numéricas en df_vendors
 for col in ["Contract Monthly Price", "Contract Yearly Price"]:
     clean_numeric_column(df_vendors, col)
 
