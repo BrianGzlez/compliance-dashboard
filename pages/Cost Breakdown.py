@@ -333,9 +333,9 @@ with col_table:
 st.subheader("Compliance Consultant Cost(s)")
 
 # Calcular el costo total de consultores
-df_consultant_salary_total = df_org[df_org["Status"].str.lower() == "consultant"]["Salary"].sum()
+df_consultant_salary_total = df_org[df_org["Contract"].str.lower() == "consultant"]["Salary"].sum()
 df_consultant_monthly_total = df_consultant_salary_total / 12
-df_consultant_headcount = df_org[df_org["Status"].str.lower() == "consultant"].shape[0]
+df_consultant_headcount = df_org[df_org["Contract"].str.lower() == "consultant"].shape[0]
 
 col1, col2, col3 = st.columns(3)
 
@@ -352,7 +352,7 @@ with col3:
 st.subheader("Total Costs")
 
 # Sección de costos totales
-compliance_operations_cost_yearly = df_active_salary_total + df_consultant_salary_total
+compliance_operations_cost_yearly = df_active_salary_total + df_consultant_salary_total + total_yearly_cost
 compliance_operations_cost_monthly = compliance_operations_cost_yearly / 12
 
 col4, col5 = st.columns(2)
