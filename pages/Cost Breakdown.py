@@ -40,7 +40,7 @@ def load_data():
 # Cargar los datos
 df_org, df_vendors = load_data()
 
-# Función para limpiar columnas numéricas
+# Función para limpiar columnas numéricas (para vendors)
 def clean_numeric_column(df, col):
     # Convertir a string y eliminar espacios
     df[col] = df[col].astype(str).str.strip()
@@ -51,18 +51,17 @@ def clean_numeric_column(df, col):
     # Convertir a numérico, forzando errores a NaN y luego llenarlos con 0
     df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
 
-# Limpieza de Datos Numéricos para df_org
+# Limpieza de Datos Numéricos para df_org (empleados)
 for col in ['Salary', 'Equity', 'Token']:
     # Convertir a string, eliminar espacios y símbolos no deseados
     df_org[col] = df_org[col].astype(str).str.strip()
     df_org[col] = df_org[col].replace(r'[$,]', '', regex=True)
     # Reemplazar valores problemáticos por '0'
     df_org[col] = df_org[col].replace(['', ' ', 'N/A', 'NULL', 'None', '-', '--'], '0')
-    # Convertir a numérico forzando errores a NaN y luego llenar con 0
+    # Convertir a numérico usando pd.to_numeric en lugar de astype(float)
     df_org[col] = pd.to_numeric(df_org[col], errors='coerce').fillna(0)
 
-
-# Limpiar columnas numéricas en df_vendors
+# Limpieza de Datos Numéricos para df_vendors
 for col in ["Contract Monthly Price", "Contract Yearly Price"]:
     clean_numeric_column(df_vendors, col)
 
