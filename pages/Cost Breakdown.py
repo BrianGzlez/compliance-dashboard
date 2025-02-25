@@ -241,33 +241,25 @@ st.subheader("📊 Compliance Open Positions")
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    st.metric("Total Salary (Yearly)", f"${df_filtered['Salary'].sum():,.2f}")
-    st.metric("Total Salary (Monthly)", f"${df_filtered['Total Salary per Month'].sum():,.2f}")
     st.metric("Open Positions #", f"{df_org[df_org['Status'].str.lower() == 'open position'].shape[0]}")
 
 with col2:
-    st.metric("Total Equity Allocated", f"${df_filtered['Equity'].sum():,.2f}")
-    st.metric("Average Salary", f"${df_filtered['Salary'].mean():,.2f}")
     st.metric("Total Anticipated Employees", f"{df_filtered.shape[0] + df_org[df_org['Status'].str.lower() == 'open position'].shape[0]}")
 
 with col3:
-    st.metric("Total Token Allocated", f"${df_filtered['Token'].sum():,.2f}")
-    st.metric("Average Equity Allocation", f"${df_filtered['Equity'].mean():,.2f}")
-    st.metric("Average Token Allocation", f"${df_filtered['Token'].mean():,.2f}")
+    st.metric("Open Position Salary (Yearly)", f"${df_open_position_total:,.2f}")
 
 col4, col5, col6 = st.columns(3)
 
 with col4:
-    st.metric("Open Position Salary (Yearly)", f"${df_open_position_total:,.2f}")
-    st.metric("Offer Stage Positions Cost", f"${df_offer_stage_total:,.2f}")
+    st.metric("Open Position Salary (Monthly)", f"${df_open_position_total / 12:,.2f}")
 
 with col5:
-    st.metric("Open Position Salary (Monthly)", f"${df_open_position_total / 12:,.2f}")
     st.metric("Total Monthly (Actual + Open)", f"${(df_active_total + df_open_position_total) / 12:,.2f}")
 
 with col6:
     st.metric("Total Yearly (Actual + Open)", f"${df_active_total + df_open_position_total:,.2f}")
-    st.metric("Full-Time Head Count", f"{df_filtered.shape[0]}")
+
 
 # Crear gráfico de barras comparando los diferentes escenarios
 fig_budget_comparison = px.bar(
