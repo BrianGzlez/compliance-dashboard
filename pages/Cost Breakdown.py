@@ -237,7 +237,7 @@ else:
 # Budget Impact and Monthly Projection
 # -------------------------
 st.subheader("📊 Compliance Open Positions")
-Í
+
 col1, col2, col3 = st.columns(3)
 
 with col1:
