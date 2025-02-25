@@ -66,9 +66,9 @@ df = df[df["Status"].str.lower() != "inactive"]
 departments = sorted(df["Department"].dropna().unique().tolist())  
 selected_department = st.sidebar.selectbox("Select Department:", ["All Departments"] + departments)
 
-# 🔎 Filtrar datos por departamento si se ha seleccionado uno
+# 🔎 Filtrar datos por departamento o mostrar toda la empresa
 if selected_department == "All Departments":
-    filtered_df = df.copy()  # Asegurar que se incluya todo
+    filtered_df = df.copy()  # Usamos todos los datos sin filtro
 else:
     filtered_df = df[df["Department"] == selected_department]
 
@@ -145,11 +145,6 @@ def generate_org_chart(data):
 
     return dot
 
-# 📌 Mostrar organigrama filtrado
-st.subheader(f"Organigrama de {selected_department}")
+# 📌 Mostrar organigrama en un solo gráfico
+st.subheader(f"Organigrama: {selected_department}")
 st.graphviz_chart(generate_org_chart(filtered_df))
-
-# 📌 Mostrar organigrama completo si se seleccionó "All Departments"
-if selected_department == "All Departments":
-    st.subheader("Organigrama Completo de la Organización")
-    st.graphviz_chart(generate_org_chart(df))
