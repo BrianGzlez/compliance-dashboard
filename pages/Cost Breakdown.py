@@ -286,7 +286,7 @@ st.plotly_chart(fig_budget_comparison)
 # -------------------------
 # Vendor Cost Analysis
 # -------------------------
-st.subheader("💰 Vendor Cost Analysis")
+st.subheader("Compliance Vendor Cost(s)")
 
 # Convertir precios a formato numérico
 df_vendors["Contract Monthly Price"] = df_vendors["Contract Monthly Price"].replace(r'[$,]', '', regex=True).astype(float)
@@ -305,16 +305,13 @@ total_monthly_cost = df_active_vendors["Contract Monthly Price"].sum()
 num_vendors = df_active_vendors.shape[0]
 
 # Mostrar métricas clave
-col1, col2, col3, col4 = st.columns(4)
+col1, col2, col3 = st.columns(3)
 with col1:
     st.metric("Total Yearly Vendor Cost", f"${total_yearly_cost:,.2f}")
 with col2:
     st.metric("Total Monthly Vendor Cost", f"${total_monthly_cost:,.2f}")
 with col3:
     st.metric("Number of Active Vendors", num_vendors)
-with col4:
-    avg_yearly_cost = total_yearly_cost / num_vendors if num_vendors > 0 else 0
-    st.metric("Avg Yearly Cost per Vendor", f"${avg_yearly_cost:,.2f}")
 
 # Gráficos
 fig_vendor_cost = px.bar(df_active_vendors, x="Vendor Name", y="Contract Yearly Price", title="Yearly Cost per Vendor",
