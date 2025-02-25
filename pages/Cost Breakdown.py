@@ -48,17 +48,14 @@ def clean_numeric_column(df, col):
     df[col] = df[col].replace(r'[$,]', '', regex=True)
     # Reemplazar valores problemáticos por '0'
     df[col] = df[col].replace(['', ' ', 'N/A', 'NULL', 'None', '-', '--'], '0')
-    # Convertir a numérico, forzando errores a NaN y luego rellenando con 0
+    # Convertir a numérico usando pd.to_numeric (evita errores al encontrar cadenas vacías)
     df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
 
 # Limpieza de Datos Numéricos para df_org (empleados)
 for col in ['Salary', 'Equity', 'Token']:
-    # Convertir a string, eliminar espacios y símbolos no deseados
     df_org[col] = df_org[col].astype(str).str.strip()
     df_org[col] = df_org[col].replace(r'[$,]', '', regex=True)
-    # Reemplazar valores problemáticos por '0'
     df_org[col] = df_org[col].replace(['', ' ', 'N/A', 'NULL', 'None', '-', '--'], '0')
-    # Convertir a numérico con manejo de errores y rellenar NaN con 0
     df_org[col] = pd.to_numeric(df_org[col], errors='coerce').fillna(0)
 
 # Limpieza de Datos Numéricos para df_vendors
