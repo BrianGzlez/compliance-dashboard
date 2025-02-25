@@ -3,13 +3,12 @@ import pandas as pd
 import gspread
 from google.oauth2.service_account import Credentials
 import plotly.express as px
-import numpy as np
 
 # 📌 Configurar credenciales de Google Sheets
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly", "https://www.googleapis.com/auth/drive.readonly"]
 SHEET_ID = "1R3EMYJt7he4CklRTRWtC6iqPzACg_eWyHdV6BaTzTms"
 
-# 📌 Obtener credenciales desde Streamlit Secrets o archivo local
+# Función para obtener credenciales
 def get_credentials():
     if "google_credentials" in st.secrets:
         return Credentials.from_service_account_info(st.secrets["google_credentials"], scopes=SCOPES)
@@ -38,49 +37,41 @@ def load_data():
         st.error(f"⚠️ Error al cargar datos desde Google Sheets: {e}")
         return pd.DataFrame(), pd.DataFrame()
 
-# 📌 Cargar los datos
+# Cargar los datos
 df_org, df_vendors = load_data()
 
-# 📌 Filtrar empleados activos
-df_active = df_org[df_org['Status'].str.lower() == 'active'].copy()
+# Función para limpiar columnas numéricas
+def clean_numeric_column(df, col):
+    # Convertir a string y eliminar espacios
+    df[col] = df[col].astype(str).str.strip()
+    # Eliminar símbolos de moneda y comas
+    df[col] = df[col].replace(r'[$,]', '', regex=True)
+    # Reemplazar valores problemáticos por '0'
+    df[col] = df[col].replace(['', ' ', 'N/A', 'NULL', 'None', '-', '--'], '0')
+    # Convertir a numérico, forzando errores a NaN y luego llenarlos con 0
+    df[col] = pd.to_numeric(df[col], errors='coerce').fillna(0)
 
-# -------------------------
-# Limpieza de Datos Numéricos
-# -------------------------
-
-# Mostrar valores únicos ANTES de limpiar (para depuración)
-st.write("Valores únicos antes de limpiar:", df_org[['Salary', 'Equity', 'Token']].drop_duplicates())
-
-# Asegurar que todas las columnas sean strings antes de limpiar
+# Limpiar columnas numéricas en df_org
 for col in ['Salary', 'Equity', 'Token']:
-    df_org[col] = df_org[col].astype(str).str.strip()  # Convertir a string y eliminar espacios en blanco
-    df_org[col] = df_org[col].replace(r'[$,]', '', regex=True)  # Eliminar símbolos de moneda y comas
-    df_org[col] = df_org[col].replace(['', ' ', 'N/A', 'NULL', 'None', '-', '--'], '0')  # Reemplazar valores problemáticos
-    df_org[col] = pd.to_numeric(df_org[col], errors='coerce')  # Convertir a numérico, forzando errores a NaN
-    df_org[col] = df_org[col].fillna(0)  # Llenar valores NaN con 0
+    clean_numeric_column(df_org, col)
+
+# Limpiar columnas numéricas en df_vendors
+for col in ["Contract Monthly Price", "Contract Yearly Price"]:
+    clean_numeric_column(df_vendors, col)
 
 # Filtrar empleados activos
 df_active = df_org[df_org['Status'].str.lower() == 'active'].copy()
 
-# Aplicar la misma limpieza a df_active
-for col in ['Salary', 'Equity', 'Token']:
-    df_active[col] = pd.to_numeric(df_active[col], errors='coerce').fillna(0)
+# Mostrar valores únicos ANTES de limpiar (para depuración)
+st.write("Valores únicos antes de limpiar:", df_org[['Salary', 'Equity', 'Token']].drop_duplicates())
 
-# Calcular el costo total por empleado
+# Calcular el costo total por empleado y otras métricas
 df_active["Total Cost"] = df_active["Salary"] + df_active["Equity"] + df_active["Token"]
 df_active["Total Salary per Month"] = df_active["Salary"] / 12
 
-# Asegurar que "Total Cost" sea float
-df_org["Total Cost"] = df_org["Salary"] + df_org["Equity"] + df_org["Token"]
-df_org["Total Cost"] = df_org["Total Cost"].astype(float)
-
-# Llenar valores NaN con 0 en todo el DataFrame
+# Asegurar que en caso de NaN se llenen con 0 (por si acaso)
 df_org.fillna(0, inplace=True)
 df_active.fillna(0, inplace=True)
-
-# Mostrar valores únicos DESPUÉS de limpiar (para confirmar corrección)
-st.write("Valores únicos después de limpiar:", df_org[['Salary', 'Equity', 'Token']].drop_duplicates())
-
 
 # -------------------------
 # Filtros en el Sidebar
@@ -157,14 +148,10 @@ with col3:
 # -------------------------
 st.subheader("💰 Vendor Cost Analysis")
 
-# 📌 Asegurar conversión segura de precios de contratos
-for col in ["Contract Monthly Price", "Contract Yearly Price"]:
-    clean_numeric_column(df_vendors, col)
-
-# 📌 Filtrar solo vendors activos
+# Filtrar solo vendors activos
 df_active_vendors = df_vendors[df_vendors["Status"].str.lower() == "active"]
 
-# 📌 Calcular métricas clave
+# Calcular métricas clave
 total_yearly_cost = df_active_vendors["Contract Yearly Price"].sum()
 
 col1, col2, col3, col4 = st.columns(4)
@@ -175,6 +162,6 @@ fig_vendor_cost = px.bar(df_active_vendors, x="Vendor Name", y="Contract Yearly 
                          labels={"Contract Yearly Price": "Yearly Cost ($)"}, template="plotly_white", text_auto=True, color="Vendor Name")
 st.plotly_chart(fig_vendor_cost)
 
-# 📌 Mostrar datos limpios
+# Mostrar datos limpios de vendors
 st.subheader("📜 Vendor Details")
 st.dataframe(df_vendors[["Status", "Vendor Name", "Contract Yearly Price"]])
