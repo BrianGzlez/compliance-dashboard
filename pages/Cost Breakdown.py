@@ -67,8 +67,6 @@ df_active = df_org[df_org['Status'].str.lower() == 'active'].copy()
 df_active["Total Cost"] = df_active["Salary"] + df_active["Equity"] + df_active["Token"]
 df_active["Total Salary per Month"] = df_active["Salary"] / 12
 
-# 📊 Filtros en el Sidebar
-st.sidebar.header("🛠 Filters")
 
 # -------------------------
 # Filtros en el Sidebar
