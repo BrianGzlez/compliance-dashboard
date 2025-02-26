@@ -11,13 +11,13 @@ st.markdown(
         div[data-testid="metric-container"] {
             width: 100% !important;
             text-align: center;
-            font-size: 14px !important;  /* Reduce el tamaño de los números */
+            font-size: 16px !important;  /* Reduce el tamaño de los números */
         }
         div[data-testid="stMetric"] > label {
-            font-size: 12px !important;  /* Reduce el tamaño del título */
+            font-size: 16px !important;  /* Reduce el tamaño del título */
         }
         div[data-testid="stMetric"] > div {
-            font-size: 20px !important;  /* Ajusta el tamaño de los números */
+            font-size: 22px !important;  /* Ajusta el tamaño de los números */
         }
     </style>
     """,
