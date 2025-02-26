@@ -17,3 +17,8 @@ geopy
 
 # Manejo de credenciales
 oauth2client
+
+
+pdfkit
+fpdf
+wkhtmltopdf
