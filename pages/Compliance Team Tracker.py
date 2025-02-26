@@ -29,6 +29,18 @@ st.markdown(
          margin-top: 1rem;
          color: white;
     }
+
+    div[data-testid="metric-container"] {
+            width: 100% !important;
+            text-align: center;
+            font-size: 16px !important;  /* Reduce el tamaño de los números */
+        }
+        div[data-testid="stMetric"] > label {
+            font-size: 16px !important;  /* Reduce el tamaño del título */
+        }
+        div[data-testid="stMetric"] > div {
+            font-size: 22px !important;  /* Ajusta el tamaño de los números */
+        }
     </style>
     """,
     unsafe_allow_html=True,
