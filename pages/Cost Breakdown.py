@@ -366,15 +366,15 @@ with col5:
 
 import pdfkit
 from io import BytesIO
-import streamlit.components.v1 as components
+import streamlit as st
 
-def generate_pdf():
+def generate_pdf(html_content):
     temp_html = "temp_dashboard.html"
     temp_pdf = "Compliance_Dashboard.pdf"
     
-    # Capturar el HTML del dashboard
+    # Guardar el HTML en un archivo temporal
     with open(temp_html, "w", encoding="utf-8") as f:
-        f.write(st.session_state["dashboard_html"])
+        f.write(html_content)
     
     # Convertir HTML a PDF
     pdfkit.from_file(temp_html, temp_pdf)
@@ -389,14 +389,28 @@ st.subheader("Download Dashboard as PDF")
 
 # Capturar el HTML del dashboard
 with st.expander("Generate PDF", expanded=False):
-    dashboard_html = st.markdown("", unsafe_allow_html=True)
-    st.session_state["dashboard_html"] = components.html(dashboard_html, height=0)
+    dashboard_html = """
+    <html>
+    <head>
+        <title>Compliance Dashboard</title>
+    </head>
+    <body>
+        <h1>Compliance Dashboard Report</h1>
+        <p>Total Salary (Yearly): ${:,}</p>
+        <p>Total Salary (Monthly): ${:,}</p>
+        <p>Total Equity Allocated: ${:,}</p>
+        <p>Total Token Allocated: ${:,}</p>
+        <p>Full-Time Head Count: {}</p>
+    </body>
+    </html>
+    """.format(df_filtered['Salary'].sum(), df_filtered['Total Salary per Month'].sum(), df_filtered['Equity'].sum(), df_filtered['Token'].sum(), df_filtered.shape[0])
 
 if st.button("📥 Download PDF Dashboard"):
-    pdf_buffer = generate_pdf()
+    pdf_buffer = generate_pdf(dashboard_html)
     st.download_button(
         label="Download PDF", 
         data=pdf_buffer, 
         file_name="Compliance_Dashboard.pdf", 
         mime="application/pdf"
     )
+
