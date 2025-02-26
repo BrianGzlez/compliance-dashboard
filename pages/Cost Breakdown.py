@@ -5,6 +5,25 @@ from google.oauth2.service_account import Credentials
 import plotly.express as px
 import numpy as np 
 
+st.markdown(
+    """
+    <style>
+        div[data-testid="metric-container"] {
+            width: 100% !important;
+            text-align: center;
+            font-size: 14px !important;  /* Reduce el tamaño de los números */
+        }
+        div[data-testid="stMetric"] > label {
+            font-size: 12px !important;  /* Reduce el tamaño del título */
+        }
+        div[data-testid="stMetric"] > div {
+            font-size: 20px !important;  /* Ajusta el tamaño de los números */
+        }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 # 📌 Configurar credenciales de Google Sheets
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly", "https://www.googleapis.com/auth/drive.readonly"]
 SHEET_ID = "1R3EMYJt7he4CklRTRWtC6iqPzACg_eWyHdV6BaTzTms"
