@@ -362,3 +362,41 @@ with col4:
 
 with col5:
     st.metric("Compliance Operations Cost (Monthly)", f"${compliance_operations_cost_monthly:,.2f}")
+
+
+import pdfkit
+from io import BytesIO
+import streamlit.components.v1 as components
+
+def generate_pdf():
+    temp_html = "temp_dashboard.html"
+    temp_pdf = "Compliance_Dashboard.pdf"
+    
+    # Capturar el HTML del dashboard
+    with open(temp_html, "w", encoding="utf-8") as f:
+        f.write(st.session_state["dashboard_html"])
+    
+    # Convertir HTML a PDF
+    pdfkit.from_file(temp_html, temp_pdf)
+    
+    # Leer el archivo PDF generado
+    with open(temp_pdf, "rb") as f:
+        pdf_buffer = BytesIO(f.read())
+    
+    return pdf_buffer
+
+st.subheader("Download Dashboard as PDF")
+
+# Capturar el HTML del dashboard
+with st.expander("Generate PDF", expanded=False):
+    dashboard_html = st.markdown("", unsafe_allow_html=True)
+    st.session_state["dashboard_html"] = components.html(dashboard_html, height=0)
+
+if st.button("📥 Download PDF Dashboard"):
+    pdf_buffer = generate_pdf()
+    st.download_button(
+        label="Download PDF", 
+        data=pdf_buffer, 
+        file_name="Compliance_Dashboard.pdf", 
+        mime="application/pdf"
+    )
