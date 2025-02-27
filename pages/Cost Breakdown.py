@@ -147,6 +147,7 @@ for col in ["Contract Monthly Price", "Contract Yearly Price"]:
 df_vendors["Contract Yearly Price"] = df_vendors["Contract Yearly Price"].replace(r'[$,]', '', regex=True)
 df_vendors["Contract Yearly Price"] = pd.to_numeric(df_vendors["Contract Yearly Price"], errors="coerce").fillna(0)
 
+df_active_salary_total = df_active["Salary"].sum()
 
 
 # Calcular el total de costos de licencias (solo vendors activos)
