@@ -162,6 +162,9 @@ df_consultant_salary_total = df_org[df_org["Contract"].str.lower() == "consultan
 df_consultant_monthly_total = df_consultant_salary_total / 12
 df_consultant_headcount = df_org[df_org["Contract"].str.lower() == "consultants"].shape[0]
 
+# Filtrar solo vendors activos
+df_active_vendors = df_vendors[df_vendors["Status"].str.lower() == "active"]
+
 total_yearly_cost = df_active_vendors["Contract Yearly Price"].sum()
 total_monthly_cost = df_active_vendors["Contract Monthly Price"].sum()
 
