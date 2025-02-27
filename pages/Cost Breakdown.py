@@ -155,6 +155,16 @@ total_licensing_cost = df_vendors[df_vendors["Status"].str.lower() == "active"][
 # Calcular el costo total de operación del compliance
 total_compliance_operation_cost = df_filtered["Total Cost"].sum() + total_licensing_cost
 
+
+# Calcular el costo total de consultores
+df_consultant_salary_total = df_org[df_org["Contract"].str.lower() == "consultants"]["Salary"].sum()
+df_consultant_monthly_total = df_consultant_salary_total / 12
+df_consultant_headcount = df_org[df_org["Contract"].str.lower() == "consultants"].shape[0]
+
+# Sección de costos totales
+compliance_operations_cost_yearly = df_active_salary_total + df_consultant_salary_total + total_yearly_cost
+compliance_operations_cost_monthly = compliance_operations_cost_yearly / 12
+
 st.title("Compliance Internal Employee Cost(s)")
 
 col1, col2, col3, col4 = st.columns(4)
@@ -162,20 +172,35 @@ col1, col2, col3, col4 = st.columns(4)
 with col1:
     st.metric("Total Salary (Yearly)", f"${df_filtered['Salary'].sum():,.2f}")
     st.metric("Total Salary (Monthly)", f"${df_filtered['Total Salary per Month'].sum():,.2f}")
+    st.metric("Consultant Cost (Yearly)", f"${df_consultant_salary_total:,.2f}")
 
 with col2:
     st.metric("Total Equity Allocated", f"${df_filtered['Equity'].sum():,.2f}")
     st.metric("Average Salary", f"${df_filtered['Salary'].mean():,.2f}")
+    st.metric("Total Consultant Cost (Monthly)", f"${df_consultant_monthly_total:,.2f}")
 
 with col3:
     st.metric("Total Token Allocated", f"${df_filtered['Token'].sum():,.2f}")
     st.metric("Average Equity Allocation", f"${df_filtered['Equity'].mean():,.2f}")
-
+    st.metric("Compliance Operations Cost (Yearly)", f"${compliance_operations_cost_yearly:,.2f}")
+    
 with col4:
     st.metric("Full-Time Head Count", f"{df_filtered.shape[0]}")
     st.metric("Average Token Allocation", f"${df_filtered['Token'].mean():,.2f}")
+    st.metric("Compliance Operations Cost (Monthly)", f"${compliance_operations_cost_monthly:,.2f}")
 
+st.markdown("<div style='display: flex; justify-content: center;'><h3>Consultant Head Count</h3></div>", unsafe_allow_html=True)
 
+st.markdown(
+    f"""
+    <div style='display: flex; justify-content: center; font-size: 24px; font-weight: bold;'>
+        {df_consultant_headcount}
+    </div>
+    """,
+    unsafe_allow_html=True
+)
+    
+#st.metric("Consultant Head Count", f"{df_consultant_headcount}")
 # -------------------------
 # Visualizaciones
 # -------------------------
@@ -347,37 +372,3 @@ with col_table:
     st.subheader("📜 Vendor Details")
     st.dataframe(df_vendors[["Status", "Vendor Name", "Vendor Contact Name", "Vendor Email", "Contract Duration", "Contract Monthly Price", "Contract Yearly Price"]])
 
-
-
-st.subheader("Compliance Consultant Cost(s)")
-
-# Calcular el costo total de consultores
-df_consultant_salary_total = df_org[df_org["Contract"].str.lower() == "consultants"]["Salary"].sum()
-df_consultant_monthly_total = df_consultant_salary_total / 12
-df_consultant_headcount = df_org[df_org["Contract"].str.lower() == "consultants"].shape[0]
-
-col1, col2, col3 = st.columns(3)
-
-with col1:
-    st.metric("Consultant Cost (Yearly)", f"${df_consultant_salary_total:,.2f}")
-
-with col2:
-    st.metric("Total Consultant Cost (Monthly)", f"${df_consultant_monthly_total:,.2f}")
-
-with col3:
-    st.metric("Consultant Head Count", f"{df_consultant_headcount}")
-
-
-st.subheader("Total Costs")
-
-# Sección de costos totales
-compliance_operations_cost_yearly = df_active_salary_total + df_consultant_salary_total + total_yearly_cost
-compliance_operations_cost_monthly = compliance_operations_cost_yearly / 12
-
-col4, col5 = st.columns(2)
-
-with col4:
-    st.metric("Compliance Operations Cost (Yearly)", f"${compliance_operations_cost_yearly:,.2f}")
-
-with col5:
-    st.metric("Compliance Operations Cost (Monthly)", f"${compliance_operations_cost_monthly:,.2f}")
