@@ -190,13 +190,15 @@ with col3:
     st.metric("Total Token Allocated", f"${df_filtered['Token'].sum():,.2f}")
     st.metric("Average Equity Allocation", f"${df_filtered['Equity'].mean():,.2f}")
     st.metric("Compliance Operations Cost (Yearly)", f"${compliance_operations_cost_yearly:,.2f}")
-    
+
 with col4:
     st.metric("Full-Time Head Count", f"{df_filtered.shape[0]}")
     st.metric("Average Token Allocation", f"${df_filtered['Token'].mean():,.2f}")
     st.metric("Compliance Operations Cost (Monthly)", f"${compliance_operations_cost_monthly:,.2f}")
-    
-#st.metric("Consultant Head Count", f"{df_consultant_headcount}")
+
+# Nueva fila con la métrica de "Consultant Head Count"
+st.metric("Consultant Head Count", f"{df_consultant_headcount}")
+
 # -------------------------
 # Visualizaciones
 # -------------------------
