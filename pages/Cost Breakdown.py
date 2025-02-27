@@ -162,6 +162,9 @@ df_consultant_salary_total = df_org[df_org["Contract"].str.lower() == "consultan
 df_consultant_monthly_total = df_consultant_salary_total / 12
 df_consultant_headcount = df_org[df_org["Contract"].str.lower() == "consultants"].shape[0]
 
+total_yearly_cost = df_active_vendors["Contract Yearly Price"].sum()
+total_monthly_cost = df_active_vendors["Contract Monthly Price"].sum()
+
 # Sección de costos totales
 compliance_operations_cost_yearly = df_active_salary_total + df_consultant_salary_total + total_yearly_cost
 compliance_operations_cost_monthly = compliance_operations_cost_yearly / 12
