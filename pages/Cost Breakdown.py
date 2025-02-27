@@ -188,17 +188,6 @@ with col4:
     st.metric("Full-Time Head Count", f"{df_filtered.shape[0]}")
     st.metric("Average Token Allocation", f"${df_filtered['Token'].mean():,.2f}")
     st.metric("Compliance Operations Cost (Monthly)", f"${compliance_operations_cost_monthly:,.2f}")
-
-st.markdown("<div style='display: flex; justify-content: center;'><h3>Consultant Head Count</h3></div>", unsafe_allow_html=True)
-
-st.markdown(
-    f"""
-    <div style='display: flex; justify-content: center; font-size: 24px; font-weight: bold;'>
-        {df_consultant_headcount}
-    </div>
-    """,
-    unsafe_allow_html=True
-)
     
 #st.metric("Consultant Head Count", f"{df_consultant_headcount}")
 # -------------------------
