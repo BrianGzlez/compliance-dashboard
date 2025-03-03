@@ -135,6 +135,18 @@ if selected_state != "All":
 if selected_department:
     filtered_df = filtered_df[filtered_df["Department"].isin(selected_department)]
 
+uploaded_file = st.file_uploader("Upload Screenshot", type=["png", "jpg", "jpeg"])
+
+if uploaded_file is not None:
+    image = Image.open(uploaded_file)
+    pdf_path = "dashboard_report.pdf"
+    image.convert("RGB").save(pdf_path)
+
+    with open(pdf_path, "rb") as f:
+        b64_pdf = base64.b64encode(f.read()).decode('utf-8')
+
+    st.markdown(f'<a href="data:application/pdf;base64,{b64_pdf}" download="Dashboard_Report.pdf">📄 Download PDF</a>', unsafe_allow_html=True)
+
 
 if len(st.session_state["budget_queue"]) == 0 or st.session_state["budget_queue"][-1] != budget_total:
     st.session_state["budget_queue"].append(budget_total)
