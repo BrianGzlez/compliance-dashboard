@@ -100,7 +100,7 @@ df_active = df_active.merge(unique_locs[["Country", "State", "lat", "lon"]], on=
 df_active = df_active.dropna(subset=["lat", "lon"])
 
 if "budget_queue" not in st.session_state or not st.session_state["budget_queue"]:
-    st.session_state["budget_queue"] = [1000000]  # Inicializa con un valor por defecto si está vacío
+    st.session_state["budget_queue"] = [5000000]  # Inicializa con un valor por defecto si está vacío
 
 # Obtener el último presupuesto guardado
 current_budget = st.session_state["budget_queue"][-1]
