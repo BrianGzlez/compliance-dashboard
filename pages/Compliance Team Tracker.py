@@ -135,7 +135,7 @@ if selected_state != "All":
 if selected_department:
     filtered_df = filtered_df[filtered_df["Department"].isin(selected_department)]
 
-uploaded_file = st.file_uploader("Upload Screenshot", type=["png", "jpg", "jpeg"])
+
 
 if len(st.session_state["budget_queue"]) == 0 or st.session_state["budget_queue"][-1] != budget_total:
     st.session_state["budget_queue"].append(budget_total)
