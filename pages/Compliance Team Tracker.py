@@ -97,7 +97,7 @@ unique_locs["coords"] = unique_locs.apply(lambda row: get_coords_from_geopy(row[
 unique_locs["lat"] = unique_locs["coords"].apply(lambda x: x[0])
 unique_locs["lon"] = unique_locs["coords"].apply(lambda x: x[1])
 df_active = df_active.merge(unique_locs[["Country", "State", "lat", "lon"]], on=["Country", "State"], how="left")
-df_active = df_active.dropna(subset=["lat", "long"])
+df_active = df_active.dropna(subset=["lat", "lon"])
 
 
 if "budget_queue" not in st.session_state:
