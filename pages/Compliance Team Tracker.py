@@ -136,6 +136,7 @@ internal_salary = df_active[df_active['Contract'] == 'Arkham Employee']['Salary'
 consultant_pay = df_active[df_active['Contract'] == 'Consultants']['Salary'].sum()
 total_pay = df_active['Salary'].sum()
 total_equity = df_active['Equity'].sum()
+total_token = df_active['Token'].sum()
 
 total_internal_employees = df_active[df_active['Contract'] == 'Arkham Employee'].shape[0]
 total_consultants = df_active[df_active['Contract'] == 'Consultants'].shape[0]
@@ -150,7 +151,7 @@ col1.metric("Total Internal Salary", f"${internal_salary:,.2f}")
 col2.metric("Total Consultant Pay", f"${consultant_pay:,.2f}")
 col3.metric("Total Pay", f"${total_pay:,.2f}")
 col4.metric("Total Equity", f"${total_equity:,.2f}")
-col5.metric("Total Pay", f"${total_pay:,.2f}")
+col5.metric("Total Token", f"${total_token:,.2f}")
 
 col6, col7, col8, col9, col10 = st.columns(5)
 col6.metric("Total Budget", f"${budget_total:,.2f}")
