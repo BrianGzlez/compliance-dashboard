@@ -172,7 +172,7 @@ total_monthly_cost = df_active_vendors["Contract Monthly Price"].sum()
 compliance_operations_cost_yearly = df_active_salary_total + df_consultant_salary_total + total_yearly_cost
 compliance_operations_cost_monthly = compliance_operations_cost_yearly / 12
 
-st.title("Compliance Internal Employee Cost(s)")
+st.title("Compliance Operation Cost(s)")
 
 col1, col2, col3, col4 = st.columns(4)
 
