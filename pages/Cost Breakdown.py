@@ -207,7 +207,7 @@ with col4:
     st.metric("Total Vendor Cost (Monthly)", f"${total_vendor_cost_monthly:,.2f}")
 
 # Row 4
-col1, col2, col3 = st.columns(4)
+col1, col2, col3, col4 = st.columns(4)
 with col1:
     st.metric("Consultant Head Count", f"{df_consultant_headcount}")
 with col2:
