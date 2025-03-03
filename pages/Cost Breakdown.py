@@ -214,6 +214,8 @@ with col2:
     st.metric("Compliance Operations Cost (Yearly)", f"${total_compliance_operation_cost_yearly:,.2f}")
 with col3:
     st.metric("Compliance Operations Cost (Monthly)", f"${total_compliance_operation_cost_monthly:,.2f}")
+with col4:
+    st.empty()
 
 
 # -------------------------
