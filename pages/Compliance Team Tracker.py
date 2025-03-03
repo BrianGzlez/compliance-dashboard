@@ -140,8 +140,6 @@ total_equity = df_active['Equity'].sum()
 total_internal_employees = df_active[df_active['Contract'] == 'Arkham Employee'].shape[0]
 total_consultants = df_active[df_active['Contract'] == 'Consultants'].shape[0]
 total_compliance_team = df_active.shape[0]
-
-budget_total = st.sidebar.number_input("Total Budget", value=1000000, step=10000)
 remaining_budget = budget_total - total_pay
 
 # -------------------------
