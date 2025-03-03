@@ -119,7 +119,7 @@ with st.sidebar.expander("📍 Location Filters", expanded=False):
         selected_state = "All"
 
 with st.sidebar.expander("💰 Budget Filters", expanded=False):
-    budget_total = st.sidebar.number_input("Total Budget", value=current_budget, step=10000)
+    budget_total = st.number_input("Total Budget", value=current_budget, step=10000)
 
 with st.sidebar.expander("🏢 Department & Position Filters", expanded=False):
     selected_department = st.multiselect("Select Department(s)", df_active["Department"].unique(), default=df_active["Department"].unique())
