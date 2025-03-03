@@ -97,7 +97,11 @@ unique_locs["coords"] = unique_locs.apply(lambda row: get_coords_from_geopy(row[
 unique_locs["lat"] = unique_locs["coords"].apply(lambda x: x[0])
 unique_locs["lon"] = unique_locs["coords"].apply(lambda x: x[1])
 df_active = df_active.merge(unique_locs[["Country", "State", "lat", "lon"]], on=["Country", "State"], how="left")
-df_active = df_active.dropna(subset=["lat", "lon"])
+df_active = df_active.dropna(subset=["lat", "long"])
+
+
+if "budget_queue" not in st.session_state:
+    st.session_state["budget_queue"] = []  # Inicializa la cola vacía
 
 # -------------------------
 # Filtros en el Sidebar (Panel Izquierdo)
@@ -129,9 +133,16 @@ if selected_state != "All":
 if selected_department:
     filtered_df = filtered_df[filtered_df["Department"].isin(selected_department)]
 
+
+if len(st.session_state["budget_queue"]) == 0 or st.session_state["budget_queue"][-1] != budget_total:
+    st.session_state["budget_queue"].append(budget_total)
+
+
 # -------------------------
 # Cálculo de KRIs
 # -------------------------
+
+current_budget = st.session_state["budget_queue"][-1]
 internal_salary = df_active[df_active['Contract'] == 'Arkham Employee']['Salary'].sum()
 consultant_pay = df_active[df_active['Contract'] == 'Consultants']['Salary'].sum()
 total_pay = df_active['Salary'].sum()
@@ -141,7 +152,7 @@ total_token = df_active['Token'].sum()
 total_internal_employees = df_active[df_active['Contract'] == 'Arkham Employee'].shape[0]
 total_consultants = df_active[df_active['Contract'] == 'Consultants'].shape[0]
 total_compliance_team = df_active.shape[0]
-remaining_budget = budget_total - total_pay
+remaining_budget = current_budget - total_pay
 
 # -------------------------
 # Mostrar Indicadores Clave (KRIs)
@@ -154,7 +165,7 @@ col4.metric("Total Equity", f"${total_equity:,.2f}")
 col5.metric("Total Token", f"${total_token:,.2f}")
 
 col6, col7, col8, col9, col10 = st.columns(5)
-col6.metric("Total Budget", f"${budget_total:,.2f}")
+col6.metric("Total Budget", f"${current_budget:,.2f}")
 col7.metric("Remaining Budget", f"${remaining_budget:,.2f}")
 col8.metric("Total Internal Employees", f"{total_internal_employees}")
 col9.metric("Total Consultants", f"{total_consultants}")
