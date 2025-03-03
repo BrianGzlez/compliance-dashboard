@@ -130,20 +130,37 @@ if selected_department:
     filtered_df = filtered_df[filtered_df["Department"].isin(selected_department)]
 
 # -------------------------
-# Indicadores Clave (KRIs)
+# Cálculo de KRIs
 # -------------------------
-total_salary = filtered_df['Salary'].sum()
-remaining_budget = budget_total - total_salary
-total_equity = filtered_df['Equity'].sum()
-total_tokens = filtered_df['Token'].sum()
-total_employees = filtered_df.shape[0]
+internal_salary = df_active[df_active['Contract'] == 'Arkham Employee']['Salary'].sum()
+consultant_pay = df_active[df_active['Contract'] == 'Consultants']['Salary'].sum()
+total_pay = df_active['Salary'].sum()
+total_equity = df_active['Equity'].sum()
 
+total_internal_employees = df_active[df_active['Contract'] == 'Arkham Employee'].shape[0]
+total_consultants = df_active[df_active['Contract'] == 'Consultants'].shape[0]
+total_compliance_team = df_active.shape[0]
+
+budget_total = st.sidebar.number_input("Total Budget", value=1000000, step=10000)
+remaining_budget = budget_total - total_pay
+
+# -------------------------
+# Mostrar Indicadores Clave (KRIs)
+# -------------------------
 col1, col2, col3, col4, col5 = st.columns(5)
-col1.metric("Total Salary", f"${total_salary:,.2f}")
-col2.metric("Total Budget", f"${budget_total:,.2f}")
-col3.metric("Remaining Budget", f"${remaining_budget:,.2f}")
+col1.metric("Total Internal Salary", f"${internal_salary:,.2f}")
+col2.metric("Total Consultant Pay", f"${consultant_pay:,.2f}")
+col3.metric("Total Pay", f"${total_pay:,.2f}")
 col4.metric("Total Equity", f"${total_equity:,.2f}")
-col5.metric("Total Tokens", f"${total_tokens:,.2f}")
+col5.metric("Total Pay", f"${total_pay:,.2f}")
+
+col6, col7, col8, col9, col10 = st.columns(5)
+col6.metric("Total Budget", f"${budget_total:,.2f}")
+col7.metric("Remaining Budget", f"${remaining_budget:,.2f}")
+col8.metric("Total Internal Employees", f"{total_internal_employees}")
+col9.metric("Total Consultants", f"{total_consultants}")
+col10.metric("Total Compliance Team", f"{total_compliance_team}")
+
 
 # -------------------------
 # Gráficas y Mapas
