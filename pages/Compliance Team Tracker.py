@@ -99,9 +99,11 @@ unique_locs["lon"] = unique_locs["coords"].apply(lambda x: x[1])
 df_active = df_active.merge(unique_locs[["Country", "State", "lat", "lon"]], on=["Country", "State"], how="left")
 df_active = df_active.dropna(subset=["lat", "lon"])
 
+if "budget_queue" not in st.session_state or not st.session_state["budget_queue"]:
+    st.session_state["budget_queue"] = [1000000]  # Inicializa con un valor por defecto si está vacío
 
-if "budget_queue" not in st.session_state:
-    st.session_state["budget_queue"] = []  # Inicializa la cola vacía
+# Obtener el último presupuesto guardado
+current_budget = st.session_state["budget_queue"][-1]
 
 # -------------------------
 # Filtros en el Sidebar (Panel Izquierdo)
@@ -117,7 +119,7 @@ with st.sidebar.expander("📍 Location Filters", expanded=False):
         selected_state = "All"
 
 with st.sidebar.expander("💰 Budget Filters", expanded=False):
-    budget_total = st.number_input("Total Budget", value=1000000, step=10000)
+    budget_total = st.sidebar.number_input("Total Budget", value=current_budget, step=10000)
 
 with st.sidebar.expander("🏢 Department & Position Filters", expanded=False):
     selected_department = st.multiselect("Select Department(s)", df_active["Department"].unique(), default=df_active["Department"].unique())
