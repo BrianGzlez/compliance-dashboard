@@ -146,5 +146,5 @@ def generate_org_chart(data):
     return dot
 
 # 📌 Mostrar organigrama en un solo gráfico
-st.subheader(f"Organigrama: {selected_department}")
+st.subheader(f"Structure: {selected_department}")
 st.graphviz_chart(generate_org_chart(filtered_df))
