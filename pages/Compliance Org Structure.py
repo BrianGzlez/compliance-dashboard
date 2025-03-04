@@ -96,19 +96,23 @@ def generate_org_chart():
     added_nodes = set()
     
     # Determinar nodo raíz
-    root_nodes = [emp for emp in hierarchy if emp not in df["Employee"].values]
+    root_nodes = [emp for emp in hierarchy if emp not in df["Employee"].values and emp != "Open Position"]
     
     # Si no hay un nodo seleccionado, mostrar solo la raíz
     if not selected_node:
         for root in root_nodes:
-            nodes.append(Node(id=root, label=f"{root}\n{df.loc[df["Employee"] == root, 'Title'].values[0]}", shape="box", color="#004488", font_color="white"))
+            title = df.loc[df["Employee"] == root, "Title"].values
+            title = title[0] if len(title) > 0 else "Unknown Position"
+            nodes.append(Node(id=root, label=f"{root}\n{title}", shape="box", color="#004488", font_color="white"))
             added_nodes.add(root)
     else:
         # Mostrar nodos expandidos
-        nodes.append(Node(id=selected_node, label=f"{selected_node}\n{df.loc[df["Employee"] == selected_node, 'Title'].values[0]}", shape="box", color="#004488", font_color="white"))
+        title = df.loc[df["Employee"] == selected_node, "Title"].values
+        title = title[0] if len(title) > 0 else "Unknown Position"
+        nodes.append(Node(id=selected_node, label=f"{selected_node}\n{title}", shape="box", color="#004488", font_color="white"))
         if selected_node in hierarchy:
-            for emp, title in hierarchy[selected_node]:
-                nodes.append(Node(id=emp, label=f"{emp}\n{title}", shape="box", color="#004488", font_color="white"))
+            for emp, emp_title in hierarchy[selected_node]:
+                nodes.append(Node(id=emp, label=f"{emp}\n{emp_title}", shape="box", color="#004488", font_color="white"))
                 edges.append(Edge(source=selected_node, target=emp))
                 added_nodes.add(emp)
     
