@@ -72,33 +72,50 @@ if selected_department == "All Departments":
 else:
     filtered_df = df[df["Department"] == selected_department]
 
-# 🎨 Generar organigrama con Streamlit-Agraph
-def generate_org_chart(data):
-    nodes = []
-    edges = []
-    added_nodes = set()
-
-    for _, row in data.iterrows():
+# 📌 Organizar jerarquía
+def build_hierarchy(df):
+    hierarchy = {}
+    for _, row in df.iterrows():
         employee = row["Employee"]
         title = row["Title"]
         direct_report = row["DirectReport"]
 
-        if employee not in added_nodes:
-            nodes.append(Node(id=employee, label=f"{employee}\n{title}", shape="box", color="#004488"))
-            added_nodes.add(employee)
+        if direct_report not in hierarchy:
+            hierarchy[direct_report] = []
+        hierarchy[direct_report].append((employee, title))
+    return hierarchy
 
-        if direct_report and direct_report != "Open Position":
-            if direct_report not in added_nodes:
-                direct_report_title = data.loc[data["Employee"] == direct_report, "Title"]
-                direct_report_title = direct_report_title.values[0] if not direct_report_title.empty else "Unknown Position"
-                nodes.append(Node(id=direct_report, label=f"{direct_report}\n{direct_report_title}", shape="box", color="#004488"))
-                added_nodes.add(direct_report)
+hierarchy = build_hierarchy(filtered_df)
 
-            edges.append(Edge(source=direct_report, target=employee))
+# 📌 Crear organigrama con nodos colapsables
+selected_node = st.session_state.get("selected_node", None)
 
+def generate_org_chart():
+    nodes = []
+    edges = []
+    added_nodes = set()
+    
+    # Determinar nodo raíz
+    root_nodes = [emp for emp in hierarchy if emp not in df["Employee"].values]
+    
+    # Si no hay un nodo seleccionado, mostrar solo la raíz
+    if not selected_node:
+        for root in root_nodes:
+            nodes.append(Node(id=root, label=f"{root}\n{df.loc[df["Employee"] == root, 'Title'].values[0]}", shape="box", color="#004488", font_color="white"))
+            added_nodes.add(root)
+    else:
+        # Mostrar nodos expandidos
+        nodes.append(Node(id=selected_node, label=f"{selected_node}\n{df.loc[df["Employee"] == selected_node, 'Title'].values[0]}", shape="box", color="#004488", font_color="white"))
+        if selected_node in hierarchy:
+            for emp, title in hierarchy[selected_node]:
+                nodes.append(Node(id=emp, label=f"{emp}\n{title}", shape="box", color="#004488", font_color="white"))
+                edges.append(Edge(source=selected_node, target=emp))
+                added_nodes.add(emp)
+    
     config = Config(height=700, width=900, directed=True, hierarchical=True)
     return agraph(nodes=nodes, edges=edges, config=config)
 
-# 📌 Mostrar organigrama en un solo gráfico
-st.subheader(f"Structure: {selected_department}")
-generate_org_chart(filtered_df)
+# 📌 Manejar la selección del usuario
+clicked_node = generate_org_chart()
+if clicked_node:
+    st.session_state["selected_node"] = clicked_node
