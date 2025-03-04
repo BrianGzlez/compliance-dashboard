@@ -1,8 +1,8 @@
 import streamlit as st
 import pandas as pd
 import gspread
-import graphviz
 from google.oauth2.service_account import Credentials
+from streamlit_agraph import agraph, Node, Edge, Config
 
 # 📌 Definir los permisos (scopes) correctos para Google Sheets y Drive
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly", "https://www.googleapis.com/auth/drive.readonly"]
@@ -72,79 +72,33 @@ if selected_department == "All Departments":
 else:
     filtered_df = df[df["Department"] == selected_department]
 
-# 🎨 Función para generar organigrama
+# 🎨 Generar organigrama con Streamlit-Agraph
 def generate_org_chart(data):
-    dot = graphviz.Digraph(format="png")
-
-    # 🔲 Configuración del diseño
-    dot.attr(size="20,12", rankdir="TB", nodesep="0.5", ranksep="1.0", splines="true", concentrate="true", bgcolor="black")
-
-    # 🎨 Colores para modo oscuro
-    active_color = "#004488"  # Azul oscuro para empleados activos
-    open_color = "#666666"  # Gris oscuro para posiciones abiertas
-    text_color_active = "white"  # Texto blanco en nodos activos
-    text_color_open = "black"  # Texto negro en posiciones abiertas
-    edge_color = "white"  # Líneas blancas para contraste
-
-    # 🔗 Agregar nodos y conexiones
+    nodes = []
+    edges = []
     added_nodes = set()
-    levels = {}
 
     for _, row in data.iterrows():
         employee = row["Employee"]
         title = row["Title"]
         direct_report = row["DirectReport"]
 
-        # Asegurar que Adam Westwood-Booth siempre tenga "Head of Compliance"
-        if employee == "Adam Westwood-Booth":
-            title = "Head of Compliance"
-
-        # Formato de etiquetas
-        if employee == "Open Position":
-            label = f"Open Position\n{title}"
-            node_color = open_color
-            font_color = text_color_open
-        else:
-            label = f"{employee}\n{title}"
-            node_color = active_color
-            font_color = text_color_active
-
         if employee not in added_nodes:
-            dot.node(employee, label=label, shape="box", style="filled", fillcolor=node_color, fontcolor=font_color, fontsize="14", width="2", height="1")
+            nodes.append(Node(id=employee, label=f"{employee}\n{title}", shape="box", color="#004488"))
             added_nodes.add(employee)
 
         if direct_report and direct_report != "Open Position":
-            # Buscar título de DirectReport
-            direct_report_title = data.loc[data["Employee"] == direct_report, "Title"]
-            direct_report_title = direct_report_title.values[0] if not direct_report_title.empty else "Unknown Position"
-
-            direct_report_label = f"{direct_report}\n{direct_report_title}"
-
             if direct_report not in added_nodes:
-                dot.node(direct_report, label=direct_report_label, shape="box", style="filled", fillcolor=active_color, fontcolor=text_color_active, fontsize="14", width="2", height="1")
+                direct_report_title = data.loc[data["Employee"] == direct_report, "Title"]
+                direct_report_title = direct_report_title.values[0] if not direct_report_title.empty else "Unknown Position"
+                nodes.append(Node(id=direct_report, label=f"{direct_report}\n{direct_report_title}", shape="box", color="#004488"))
                 added_nodes.add(direct_report)
 
-            dot.edge(direct_report, employee, arrowhead="vee", color=edge_color, penwidth="2")
+            edges.append(Edge(source=direct_report, target=employee))
 
-            # Organizar nodos en niveles
-            if direct_report not in levels:
-                levels[direct_report] = 0
-            levels[employee] = levels[direct_report] + 1
-
-    # 📌 Alinear nodos por niveles
-    level_groups = {}
-    for node, level in levels.items():
-        if level not in level_groups:
-            level_groups[level] = []
-        level_groups[level].append(node)
-
-    for level_nodes in level_groups.values():
-        dot.attr(rank="same")
-        for node in level_nodes:
-            dot.node(node)
-
-    return dot
+    config = Config(height=700, width=900, directed=True, hierarchical=True)
+    return agraph(nodes=nodes, edges=edges, config=config)
 
 # 📌 Mostrar organigrama en un solo gráfico
 st.subheader(f"Structure: {selected_department}")
-st.graphviz_chart(generate_org_chart(filtered_df))
+generate_org_chart(filtered_df)
