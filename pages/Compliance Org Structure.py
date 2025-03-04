@@ -1,8 +1,8 @@
 import streamlit as st
 import pandas as pd
 import gspread
+import graphviz
 from google.oauth2.service_account import Credentials
-from streamlit_agraph import agraph, Node, Edge, Config
 
 # 📌 Definir los permisos (scopes) correctos para Google Sheets y Drive
 SCOPES = ["https://www.googleapis.com/auth/spreadsheets.readonly", "https://www.googleapis.com/auth/drive.readonly"]
@@ -72,54 +72,79 @@ if selected_department == "All Departments":
 else:
     filtered_df = df[df["Department"] == selected_department]
 
-# 📌 Organizar jerarquía
-def build_hierarchy(df):
-    hierarchy = {}
-    for _, row in df.iterrows():
+# 🎨 Función para generar organigrama
+def generate_org_chart(data):
+    dot = graphviz.Digraph(format="png")
+
+    # 🔲 Configuración del diseño
+    dot.attr(size="20,12", rankdir="TB", nodesep="0.5", ranksep="1.0", splines="true", concentrate="true", bgcolor="black")
+
+    # 🎨 Colores para modo oscuro
+    active_color = "#004488"  # Azul oscuro para empleados activos
+    open_color = "#666666"  # Gris oscuro para posiciones abiertas
+    text_color_active = "white"  # Texto blanco en nodos activos
+    text_color_open = "black"  # Texto negro en posiciones abiertas
+    edge_color = "white"  # Líneas blancas para contraste
+
+    # 🔗 Agregar nodos y conexiones
+    added_nodes = set()
+    levels = {}
+
+    for _, row in data.iterrows():
         employee = row["Employee"]
         title = row["Title"]
         direct_report = row["DirectReport"]
 
-        if direct_report not in hierarchy:
-            hierarchy[direct_report] = []
-        hierarchy[direct_report].append((employee, title))
-    return hierarchy
+        # Asegurar que Adam Westwood-Booth siempre tenga "Head of Compliance"
+        if employee == "Adam Westwood-Booth":
+            title = "Head of Compliance"
 
-hierarchy = build_hierarchy(filtered_df)
+        # Formato de etiquetas
+        if employee == "Open Position":
+            label = f"Open Position\n{title}"
+            node_color = open_color
+            font_color = text_color_open
+        else:
+            label = f"{employee}\n{title}"
+            node_color = active_color
+            font_color = text_color_active
 
-# 📌 Crear organigrama con nodos colapsables
-selected_node = st.session_state.get("selected_node", None)
+        if employee not in added_nodes:
+            dot.node(employee, label=label, shape="box", style="filled", fillcolor=node_color, fontcolor=font_color, fontsize="14", width="2", height="1")
+            added_nodes.add(employee)
 
-def generate_org_chart():
-    nodes = []
-    edges = []
-    added_nodes = set()
-    
-    # Determinar nodo raíz
-    root_nodes = [emp for emp in hierarchy if emp not in df["Employee"].values and emp != "Open Position"]
-    
-    # Si no hay un nodo seleccionado, mostrar solo la raíz
-    if not selected_node:
-        for root in root_nodes:
-            title = df.loc[df["Employee"] == root, "Title"].values
-            title = title[0] if len(title) > 0 else "Unknown Position"
-            nodes.append(Node(id=root, label=f"{root}\n{title}", shape="box", color="#004488", font_color="white"))
-            added_nodes.add(root)
-    else:
-        # Mostrar nodos expandidos
-        title = df.loc[df["Employee"] == selected_node, "Title"].values
-        title = title[0] if len(title) > 0 else "Unknown Position"
-        nodes.append(Node(id=selected_node, label=f"{selected_node}\n{title}", shape="box", color="#004488", font_color="white"))
-        if selected_node in hierarchy:
-            for emp, emp_title in hierarchy[selected_node]:
-                nodes.append(Node(id=emp, label=f"{emp}\n{emp_title}", shape="box", color="#004488", font_color="white"))
-                edges.append(Edge(source=selected_node, target=emp))
-                added_nodes.add(emp)
-    
-    config = Config(height=700, width=900, directed=True, hierarchical=True)
-    return agraph(nodes=nodes, edges=edges, config=config)
+        if direct_report and direct_report != "Open Position":
+            # Buscar título de DirectReport
+            direct_report_title = data.loc[data["Employee"] == direct_report, "Title"]
+            direct_report_title = direct_report_title.values[0] if not direct_report_title.empty else "Unknown Position"
 
-# 📌 Manejar la selección del usuario
-clicked_node = generate_org_chart()
-if clicked_node:
-    st.session_state["selected_node"] = clicked_node
+            direct_report_label = f"{direct_report}\n{direct_report_title}"
+
+            if direct_report not in added_nodes:
+                dot.node(direct_report, label=direct_report_label, shape="box", style="filled", fillcolor=active_color, fontcolor=text_color_active, fontsize="14", width="2", height="1")
+                added_nodes.add(direct_report)
+
+            dot.edge(direct_report, employee, arrowhead="vee", color=edge_color, penwidth="2")
+
+            # Organizar nodos en niveles
+            if direct_report not in levels:
+                levels[direct_report] = 0
+            levels[employee] = levels[direct_report] + 1
+
+    # 📌 Alinear nodos por niveles
+    level_groups = {}
+    for node, level in levels.items():
+        if level not in level_groups:
+            level_groups[level] = []
+        level_groups[level].append(node)
+
+    for level_nodes in level_groups.values():
+        dot.attr(rank="same")
+        for node in level_nodes:
+            dot.node(node)
+
+    return dot
+
+# 📌 Mostrar organigrama en un solo gráfico
+st.subheader(f"Structure: {selected_department}")
+st.graphviz_chart(generate_org_chart(filtered_df))
