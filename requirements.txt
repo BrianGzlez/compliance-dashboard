@@ -17,3 +17,4 @@ geopy
 
 # Manejo de credenciales
 oauth2client
+Streamlit-Agraph
